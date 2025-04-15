@@ -1,4 +1,4 @@
-package team.secureloginsystemspring.service;
+package team.bid2drivespring.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,8 +6,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import team.secureloginsystemspring.model.User;
-import team.secureloginsystemspring.repository.UserRepository;
+import team.bid2drivespring.model.User;
+import team.bid2drivespring.repository.UserRepository;
 
 
 @Service

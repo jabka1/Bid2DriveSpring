@@ -1,6 +1,6 @@
-package team.secureloginsystemspring.repository;
+package team.bid2drivespring.repository;
 
-import team.secureloginsystemspring.model.User;
+import team.bid2drivespring.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

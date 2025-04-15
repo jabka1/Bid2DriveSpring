@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>team</groupId>
-    <artifactId>SecureLoginSystemSpring</artifactId>
+    <artifactId>Bid2Drive</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>SecureLoginSystemSpring</name>
-    <description>SecureLoginSystemSpring</description>
+    <name>Bid2Drive</name>
+    <description>Bid2Drive</description>
     <url/>
     <licenses>
         <license/>

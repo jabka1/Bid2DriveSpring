@@ -1,4 +1,4 @@
-package team.secureloginsystemspring.model;
+package team.bid2drivespring.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package team.secureloginsystemspring.config;
+package team.bid2drivespring.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,8 +17,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import team.secureloginsystemspring.model.User;
-import team.secureloginsystemspring.service.*;
+import team.bid2drivespring.model.User;
+import team.bid2drivespring.service.*;
 
 @Configuration
 public class SecurityConfig {

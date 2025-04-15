@@ -1,4 +1,4 @@
-package team.secureloginsystemspring.service;
+package team.bid2drivespring.service;
 
 
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -6,9 +6,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import team.secureloginsystemspring.model.User;
-import team.secureloginsystemspring.repository.UserRepository;
+import team.bid2drivespring.model.User;
+import team.bid2drivespring.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;

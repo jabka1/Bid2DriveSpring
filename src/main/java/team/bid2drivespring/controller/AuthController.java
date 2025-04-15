@@ -1,4 +1,4 @@
-package team.secureloginsystemspring.controller;
+package team.bid2drivespring.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -7,13 +7,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.client.RestTemplate;
-import team.secureloginsystemspring.model.User;
-import team.secureloginsystemspring.service.UserService;
+import team.bid2drivespring.model.User;
+import team.bid2drivespring.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import team.secureloginsystemspring.service.EmailService;
+import team.bid2drivespring.service.EmailService;
 
 import java.util.Optional;
 
