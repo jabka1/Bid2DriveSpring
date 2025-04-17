@@ -44,16 +44,44 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private String twoFactorCode;
 
-
     @Column(nullable = true)
     private String recoveryToken;
 
     @Column(nullable = true)
     private java.time.LocalDateTime tokenExpiryTime;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
+    @Column(nullable = false)
+    private boolean verified = false;
+
+    @Column(nullable = true)
+    private String verificationPhotoUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VerificationStatus verificationStatus = VerificationStatus.NOT_SUBMITTED;
+
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String verificationComment;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
+
+    public enum Role {
+        USER,
+        ADMIN
+    }
+
+    public enum VerificationStatus {
+        NOT_SUBMITTED,
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
+
 }

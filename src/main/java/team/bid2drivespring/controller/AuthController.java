@@ -7,6 +7,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import team.bid2drivespring.service.EmailService;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Controller
@@ -85,24 +88,6 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLoginPage() { return "login"; }
-
-    /*@PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password, Model model) {
-        User user = userService.getCurrentUser();
-        if (!userService.authenticate(username, password)) {
-            return "login";
-        }
-
-        if (user.isTwoFactorEnabled()) {
-            String twoFactorCode = userService.generateTwoFactorCode();
-            user.setTwoFactorCode(twoFactorCode);
-            userService.save(user);
-            emailService.sendTwoFactorCode(user.getEmail(), twoFactorCode);
-            return "redirect:/2fa";
-        } else {
-            return "redirect:/profileSettings";
-        }
-    }*/
 
     @GetMapping("/profileSettings")
     public String showProfileSettingsPage(Model model) {
@@ -198,6 +183,33 @@ public class AuthController {
             model.addAttribute("error", e.getMessage());
             return "passwordRecovery";
         }
+    }
+
+    @GetMapping("/uploadPassportPhoto")
+    public String showUploadPassportPhotoPage(Model model, RedirectAttributes redirectAttributes) {
+        User user = userService.getCurrentUser();
+        if (user.getVerificationStatus() != User.VerificationStatus.NOT_SUBMITTED &&
+                user.getVerificationStatus() != User.VerificationStatus.REJECTED) {
+            redirectAttributes.addFlashAttribute("error", "You cannot access this page at this time.");
+            return "redirect:/profileSettings";
+        }
+
+        model.addAttribute("user", user);
+        return "uploadPassportPhoto";
+    }
+
+
+    @PostMapping("/uploadPassportPhoto")
+    public String uploadPassportPhoto(@RequestParam("file") MultipartFile file, Model model) {
+        try {
+            String photoUrl = userService.uploadVerificationPhoto(file);
+            model.addAttribute("success", "Passport photo uploaded successfully!");
+        } catch (IOException e) {
+            model.addAttribute("error", "Failed to upload passport photo.");
+        }
+        User user = userService.getCurrentUser();
+        model.addAttribute("user", user);
+        return "profileSettings";
     }
 
     private boolean verifyRecaptcha(String gRecaptchaResponse) {

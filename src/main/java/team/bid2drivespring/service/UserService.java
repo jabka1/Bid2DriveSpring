@@ -1,18 +1,23 @@
 package team.bid2drivespring.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.multipart.MultipartFile;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +33,13 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AmazonS3 s3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
+
 
     public void registerUser(String username, String password, String email) {
         String encodedPassword = passwordEncoder.encode(password);
@@ -79,35 +91,6 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    /*public boolean authenticate(String username, String password) {
-        Optional<User> userOpt = userRepository.findByUsername(username);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-
-            if (user.getLockTime() > System.currentTimeMillis()) {
-                return false;
-            }
-
-            boolean isPasswordValid = passwordEncoder.matches(password, user.getPassword());
-
-            if (!isPasswordValid) {
-                user.setFailedLoginAttempts(user.getFailedLoginAttempts() + 1);
-                if (user.getFailedLoginAttempts() >= 3) {
-                    user.setLockTime(System.currentTimeMillis() + 60000);
-                }
-
-                userRepository.save(user);
-            } else {
-                user.setFailedLoginAttempts(0);
-                user.setLockTime(0);
-                userRepository.save(user);
-            }
-
-            return isPasswordValid;
-        }
-        return false;
-    }*/
-
     public void enableTwoFactorAuthentication(User user) {
         user.setTwoFactorEnabled(true);
         userRepository.save(user);
@@ -153,6 +136,27 @@ public class UserService implements UserDetailsService {
         user.setRecoveryToken(null);
         user.setTokenExpiryTime(null);
         userRepository.save(user);
+    }
+
+    public String uploadVerificationPhoto(MultipartFile file) throws IOException {
+        User user = getCurrentUser();
+        String key = "user_verify/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(file.getSize());
+        metadata.setContentType(file.getContentType());
+
+        s3Client.putObject(bucketName, key, file.getInputStream(), metadata);
+        String photoUrl = s3Client.getUrl(bucketName, key).toString();
+
+        user.setVerificationPhotoUrl(photoUrl);
+        user.setVerified(false);
+        user.setVerificationStatus(User.VerificationStatus.PENDING);
+        user.setVerificationComment(null);
+
+        userRepository.save(user);
+
+        return photoUrl;
     }
 
     @Override

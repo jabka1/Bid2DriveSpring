@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Account</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -56,7 +56,7 @@
 </nav>
 
 <div class="container">
-    <h2 class="text-center mb-4">Welcome!</h2>
+    <h2 class="text-center mb-4">Account</h2>
 
     <h3>User Information:</h3>
     <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
@@ -66,6 +66,36 @@
     <h3>Your account status:</h3>
     <p th:text="${user.activated ? 'Activated' : 'Not Activated! Check your email'}"></p>
     <hr class="border-muted" />
+
+    <h3>ID Verification Status:</h3>
+    <p>
+    <span th:if="${user.verificationStatus.name() == 'NOT_SUBMITTED'}">
+        Not Submitted – You haven’t uploaded your passport photo yet
+    </span>
+        <span th:if="${user.verificationStatus.name() == 'PENDING'}">
+        Pending – Your account verify is under review
+    </span>
+        <span th:if="${user.verificationStatus.name() == 'APPROVED'}">
+        Approved – Your account is verified
+    </span>
+        <span th:if="${user.verificationStatus.name() == 'REJECTED'}">
+        Rejected – Please upload a new passport photo
+    </span>
+        <span th:if="${user.verificationStatus == null}">
+        Unknown status
+    </span>
+    </p>
+
+    <div th:if="${user.verificationStatus.name() == 'REJECTED'}" class="alert alert-danger mt-3">
+        <strong>Rejection Reason:</strong>
+        <p th:text="${user.verificationComment}">Your photo did not meet the requirements.</p>
+    </div>
+
+    <div th:if="${user.verificationStatus.name() != 'APPROVED' and user.verificationStatus.name() != 'PENDING'}" class="text-center mt-3">
+        <a href="/uploadPassportPhoto" class="btn btn-custom">Go to Verification Page</a>
+    </div>
+    <hr class="border-muted" />
+
 
     <h3>Two-Factor Authentication Status:</h3>
     <p th:text="${user.twoFactorEnabled ? 'Two-Factor Authentication is Enabled' : 'Two-Factor Authentication is Disabled'}"></p>
@@ -86,39 +116,3 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-<!--
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Welcome</title>
-</head>
-<body>
-<h1>Welcome!</h1>
-
-<h2>Your account status:</h2>
-<p th:text="${user.activated ? 'Activated' : 'Not Activated! Check your email'}"></p>
-
-<h3>Two-Factor Authentication Status:</h3>
-<p th:text="${user.twoFactorEnabled ? 'Two-Factor Authentication is Enabled' : 'Two-Factor Authentication is Disabled'}"></p>
-
-<h3>User Information:</h3>
-<p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
-<p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
-
-<form action="#" th:action="@{/2fa/enable}" method="post" th:if="${!user.twoFactorEnabled}">
-    <button type="submit">Enable 2FA</button>
-</form>
-<form action="#" th:action="@{/2fa/disable}" method="post" th:if="${user.twoFactorEnabled}">
-    <button type="submit">Disable 2FA</button>
-</form>
-
-<a href="/changeProfileInfo">Change Profile Information</a>
-
-<form action="/logout" method="post" style="display: inline;">
-    <button type="submit">Logout</button>
-</form>
-</body>
-</html>
--->

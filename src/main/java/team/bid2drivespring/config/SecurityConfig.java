@@ -104,7 +104,7 @@ public class SecurityConfig {
 
                 response.sendRedirect("/2fa");
             } else {
-                response.sendRedirect("/home");
+                response.sendRedirect("/profileSettings");
             }
         };
     }
