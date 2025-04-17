@@ -100,15 +100,15 @@ public class AuthController {
             emailService.sendTwoFactorCode(user.getEmail(), twoFactorCode);
             return "redirect:/2fa";
         } else {
-            return "redirect:/home";
+            return "redirect:/profileSettings";
         }
     }*/
 
-    @GetMapping("/home")
-    public String showHomePage(Model model) {
+    @GetMapping("/profileSettings")
+    public String showProfileSettingsPage(Model model) {
         User user = userService.getCurrentUser();
         model.addAttribute("user", user);
-        return "home";
+        return "profileSettings";
     }
 
     @GetMapping("/2fa")
@@ -122,7 +122,7 @@ public class AuthController {
         if (user.getTwoFactorCode().equals(code)) {
             user.setTwoFactorCode(null);
             userService.save(user);
-            return "redirect:/home";
+            return "redirect:/profileSettings";
         } else {
             model.addAttribute("error", "Invalid 2FA code");
             return "2fa";
@@ -133,14 +133,14 @@ public class AuthController {
     public String enableTwoFactor() {
         User user = userService.getCurrentUser();
         userService.enableTwoFactorAuthentication(user);
-        return "redirect:/home";
+        return "redirect:/profileSettings";
     }
 
     @PostMapping("/2fa/disable")
     public String disableTwoFactor() {
         User user = userService.getCurrentUser();
         userService.disableTwoFactorAuthentication(user);
-        return "redirect:/home";
+        return "redirect:/profileSettings";
     }
 
     @GetMapping("/changeProfileInfo")
@@ -157,7 +157,7 @@ public class AuthController {
                                     Model model) {
         try {
             userService.updateUserProfile(username, password, confirmPassword);
-            return "redirect:/home";
+            return "redirect:/profileSettings";
         } catch (IllegalArgumentException e) {
             User currentUser = userService.getCurrentUser();
             model.addAttribute("user", currentUser);
