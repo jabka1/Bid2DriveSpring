@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/register", "/login", "/activate", "/css/**", "/generateTokenForPasswordRecovery", "/passwordRecovery", "/js/**").permitAll()
+                        .requestMatchers("/administrator/**").hasRole("ADMIN")
+                        .requestMatchers("/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -67,6 +69,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
@@ -89,7 +92,7 @@ public class SecurityConfig {
         };
     }
 
-    @Bean
+    /*@Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
             String username = authentication.getName();
@@ -107,6 +110,30 @@ public class SecurityConfig {
                 response.sendRedirect("/profileSettings");
             }
         };
+    }*/
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
+            String username = authentication.getName();
+            User user = userService.getCurrentUser(username);
+
+            if (user.getRole() == User.Role.ADMIN) {
+                response.sendRedirect("/administrator/users/pendingVerification");
+            } else {
+                if (user.isTwoFactorEnabled()) {
+                    String twoFactorCode = userService.generateTwoFactorCode();
+                    user.setTwoFactorCode(twoFactorCode);
+                    userService.save(user);
+
+                    emailService.sendTwoFactorCode(user.getEmail(), twoFactorCode);
+
+                    response.sendRedirect("/2fa");
+                } else {
+                    response.sendRedirect("/profileSettings");
+                }
+            }
+        };
     }
+
 }
 
