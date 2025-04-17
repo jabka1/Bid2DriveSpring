@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class UserService implements UserDetailsService {
     private String bucketName;
 
 
-    public void registerUser(String username, String password, String email) {
+    /*public void registerUser(String username, String password, String email) {
         String encodedPassword = passwordEncoder.encode(password);
         String activationToken = java.util.UUID.randomUUID().toString();
 
@@ -55,9 +56,32 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         emailService.sendActivationEmail(user.getEmail(), activationToken);
+    }*/
+
+    public void registerUser(String username, String password, String email, String firstName,
+                             String lastName, LocalDate dateOfBirth, String countryOfResidence, String city) {
+        String encodedPassword = passwordEncoder.encode(password);
+        String activationToken = java.util.UUID.randomUUID().toString();
+
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(encodedPassword);
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setDateOfBirth(dateOfBirth);
+        user.setCountry(countryOfResidence);
+        user.setCity(city);
+        user.setActivationtoken(activationToken);
+        user.setActivated(false);
+
+        userRepository.save(user);
+
+        emailService.sendActivationEmail(user.getEmail(), activationToken);
     }
 
-    public void updateUserProfile(String username, String newPassword, String confirmPassword) {
+
+    /*public void updateUserProfile(String username, String newPassword, String confirmPassword) {
         User currentUser = getCurrentUser();
 
         if (!username.equals(currentUser.getUsername())) {
@@ -89,7 +113,59 @@ public class UserService implements UserDetailsService {
                 new UsernamePasswordAuthenticationToken(currentUser, null,
                         AuthorityUtils.createAuthorityList("USER"))
         );
+    }*/
+
+    public void updateUserProfile(String username, String newPassword, String confirmPassword, String firstName,
+                                  String lastName, String dateOfBirthStr, String countryOfResidence, String city) {
+        User currentUser = getCurrentUser();
+
+        if (username != null && !username.equals(currentUser.getUsername())) {
+            if (isUsernameTaken(username)) {
+                throw new IllegalArgumentException("Username is already taken.");
+            }
+            currentUser.setUsername(username);
+        }
+
+        if (newPassword != null && !newPassword.isEmpty()) {
+            if (confirmPassword == null || confirmPassword.isEmpty()) {
+                throw new IllegalArgumentException("Please confirm your new password.");
+            }
+
+            if (!newPassword.equals(confirmPassword)) {
+                throw new IllegalArgumentException("Passwords do not match.");
+            }
+
+            if (!newPassword.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!\"#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~]).{8,}$")) {
+                throw new IllegalArgumentException("Password must meet the security policy (Minimum 8 characters, including a capital letter, a number and a symbol (!, @, #))");
+            }
+
+            currentUser.setPassword(passwordEncoder.encode(newPassword));
+        }
+
+        if (firstName != null && !firstName.isEmpty()) {
+            currentUser.setFirstName(firstName);
+        }
+        if (lastName != null && !lastName.isEmpty()) {
+            currentUser.setLastName(lastName);
+        }
+        if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
+            try {
+                LocalDate dateOfBirth = LocalDate.parse(dateOfBirthStr);
+                currentUser.setDateOfBirth(dateOfBirth);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Invalid date format. Please use the correct format (YYYY-MM-DD).");
+            }
+        }
+        if (countryOfResidence != null && !countryOfResidence.isEmpty()) {
+            currentUser.setCountry(countryOfResidence);
+        }
+        if (city != null && !city.isEmpty()) {
+            currentUser.setCity(city);
+        }
+
+        userRepository.save(currentUser);
     }
+
 
     public void enableTwoFactorAuthentication(User user) {
         user.setTwoFactorEnabled(true);
@@ -158,6 +234,25 @@ public class UserService implements UserDetailsService {
 
         return photoUrl;
     }
+
+    public String uploadProfilePhoto(MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            throw new IOException("File is empty");
+        }
+        String key = "user_profile_photo/" + UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(file.getSize());
+        metadata.setContentType(file.getContentType());
+
+        s3Client.putObject(bucketName, key, file.getInputStream(), metadata);
+        String photoUrl = s3Client.getUrl(bucketName, key).toString();
+        User user = getCurrentUser();
+        user.setProfilePhotoUrl(photoUrl);
+        userRepository.save(user);
+        return photoUrl;
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

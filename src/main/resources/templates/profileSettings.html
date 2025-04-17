@@ -41,16 +41,35 @@
             margin-top: 20px;
             margin-bottom: 20px;
         }
+        .status-text {
+            font-size: 1.1em;
+        }
+        .status-text.activated {
+            color: green;
+        }
+        .status-text.not-activated {
+            color: red;
+        }
+        .status-text.pending {
+            color: orange;
+        }
+        .status-text.rejected {
+            color: red;
+        }
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" >Bid2Drive</a>
+        <a class="navbar-brand" href="#">Bid2Drive</a>
         <div class="navbar-right">
-            <div>
-                <a href="/logout" class="btn btn-link header-link">Logout</a>
-            </div>
+            <a href="/logout" class="btn btn-link header-link">Logout</a>
         </div>
     </div>
 </nav>
@@ -58,32 +77,53 @@
 <div class="container">
     <h2 class="text-center mb-4">Account</h2>
 
-    <h3>User Information:</h3>
+    <br>
+
+    <div class="profile-container text-center">
+        <img th:src="@{${user.profilePhotoUrl} != null ? ${user.profilePhotoUrl} : 'DefaultProfilePic.jpg'}"
+             alt="Profile Picture" class="profile-img">
+    </div>
+
+    <br>
+
+    <form method="post" action="/uploadProfilePhoto" enctype="multipart/form-data" class="upload-form">
+        <label for="file" class="upload-label">Change Profile Photo:</label>
+        <input type="file" id="file" name="file" accept="image/*" required class="upload-input"/>
+        <button type="submit" class="btn btn-custom">Upload</button>
+    </form>
+
+    <br>
+
     <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
     <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+    <p><strong>First Name:</strong> <span th:text="${user.firstName}"></span></p>
+    <p><strong>Last Name:</strong> <span th:text="${user.lastName}"></span></p>
+    <p><strong>Date of Birth:</strong> <span th:text="${user.dateOfBirth}"></span></p>
+    <p><strong>Country of Residence:</strong> <span th:text="${user.country}"></span></p>
+    <p><strong>City:</strong> <span th:text="${user.city}"></span></p>
     <hr class="border-muted" />
 
     <h3>Your account status:</h3>
-    <p th:text="${user.activated ? 'Activated' : 'Not Activated! Check your email'}"></p>
+    <p class="status-text" th:class="${user.activated} ? 'activated' : 'not-activated'" th:text="${user.activated ? 'Activated' : 'Not Activated! Check your email'}"></p>
     <hr class="border-muted" />
 
     <h3>ID Verification Status:</h3>
     <p>
-    <span th:if="${user.verificationStatus.name() == 'NOT_SUBMITTED'}">
-        Not Submitted – You haven’t uploaded your passport photo yet
-    </span>
-        <span th:if="${user.verificationStatus.name() == 'PENDING'}">
-        Pending – Your account verify is under review
-    </span>
-        <span th:if="${user.verificationStatus.name() == 'APPROVED'}">
-        Approved – Your account is verified
-    </span>
-        <span th:if="${user.verificationStatus.name() == 'REJECTED'}">
-        Rejected – Please upload a new passport photo
-    </span>
-        <span th:if="${user.verificationStatus == null}">
-        Unknown status
-    </span>
+        <span th:if="${user.verificationStatus.name() == 'NOT_SUBMITTED'}" class="status-text not-submitted">
+            Not Submitted – You haven’t uploaded your passport photo yet.
+        </span>
+        <span th:if="${user.verificationStatus.name() == 'PENDING'}" class="status-text pending">
+            Pending – Your account verification is under review.
+        </span>
+        <span th:if="${user.verificationStatus.name() == 'APPROVED'}" class="status-text activated">
+            Approved – Your account is verified.
+        </span>
+        <span th:if="${user.verificationStatus.name() == 'REJECTED'}" class="status-text rejected">
+            Rejected – Please upload a new passport photo.
+        </span>
+        <span th:if="${user.verificationStatus == null}" class="status-text">
+            Unknown status.
+        </span>
     </p>
 
     <div th:if="${user.verificationStatus.name() == 'REJECTED'}" class="alert alert-danger mt-3">
@@ -96,9 +136,8 @@
     </div>
     <hr class="border-muted" />
 
-
     <h3>Two-Factor Authentication Status:</h3>
-    <p th:text="${user.twoFactorEnabled ? 'Two-Factor Authentication is Enabled' : 'Two-Factor Authentication is Disabled'}"></p>
+    <p class="status-text" th:class="${user.twoFactorEnabled} ? 'activated' : 'not-activated'" th:text="${user.twoFactorEnabled ? 'Two-Factor Authentication is Enabled' : 'Two-Factor Authentication is Disabled'}"></p>
     <div class="text-center">
         <form action="#" th:action="@{/2fa/enable}" method="post" th:if="${!user.twoFactorEnabled}">
             <button type="submit" class="btn btn-custom">Enable 2FA</button>

@@ -8,13 +8,6 @@
     <style>
         body {
             background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
         }
         .btn-custom {
@@ -33,85 +26,144 @@
         .btn-link-custom:hover {
             background-color: #218838;
         }
-        .navbar-right {
-            margin-left: auto;
+        .img-thumbnail {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
         }
-        hr.border-muted {
-            border-top: 2px solid #ddd;
-            margin-top: 20px;
-            margin-bottom: 20px;
+        .profile-img {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .form-control {
+            width: 100%;
+        }
+        .table td, .table th {
+            border: none;
+            vertical-align: middle;
+        }
+        .table tbody tr:not(:last-child) {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table thead {
+            background-color: #e9ecef;
+        }
+        @media (max-width: 768px) {
+            .table thead {
+                display: none;
+            }
+            .table, .table tbody, .table tr, .table td {
+                display: block;
+                width: 100%;
+            }
+            .table td {
+                padding: 0.75rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+            .table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                display: block;
+                color: #495057;
+                margin-bottom: 0.3rem;
+            }
+        }
+        .header-link {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .header-link:hover {
+            color: #0056b3;
         }
     </style>
 </head>
 <body>
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <a class="navbar-brand">Bid2Drive</a>
-        <div class="navbar-right">
-            <div>
-                <a href="/logout" class="btn btn-link header-link">Logout</a>
-            </div>
+        <div>
+            <a href="/logout" class="btn btn-link header-link">Logout</a>
         </div>
     </div>
 </nav>
 
-<div class="container">
-    <h2 class="text-center mb-4">Pending Verification</h2>
+<h2 class="text-center mb-4">Pending Verification</h2>
 
-    <div th:if="${error}" class="alert alert-danger">
-        <p th:text="${error}"></p>
-    </div>
+<div th:if="${error}" class="alert alert-danger">
+    <p th:text="${error}"></p>
+</div>
 
-    <table class="table table-bordered">
+<div class="table-responsive">
+    <table class="table">
         <thead>
         <tr>
+            <th>Profile Picture</th>
             <th>Username</th>
             <th>Email</th>
-            <th>Verification Status</th>
+            <th>Status</th>
             <th>Passport Photo</th>
+            <th>Date of Birth</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>First Name</th>
+            <th>Last Name</th>
             <th>Actions</th>
         </tr>
         </thead>
+
         <tbody>
         <tr th:each="user : ${users}">
-            <td th:text="${user.username}"></td>
-            <td th:text="${user.email}"></td>
-            <td th:text="${user.verificationStatus}"></td>
-            <td>
-                <div>
-                    <img th:src="${user.verificationPhotoUrl}"
-                         alt="Passport Photo"
-                         style="max-width: 150px; max-height: 150px; object-fit: cover; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;"
-                         onclick="openModal(this)">
-                </div>
+            <td data-label="Profile Picture">
+                <img th:src="${user.profilePhotoUrl != null ? user.profilePhotoUrl : 'DefaultProfilePic.jpg'}"
+                     alt="Profile Picture"
+                     class="img-thumbnail"
+                     onclick="openModal(this)">
             </td>
-            <td>
+            <td data-label="Username" th:text="${user.username}"></td>
+            <td data-label="Email" th:text="${user.email}"></td>
+            <td data-label="Status" th:text="${user.verificationStatus}"></td>
+            <td data-label="Passport Photo">
+                <img th:src="${user.verificationPhotoUrl}"
+                     alt="Passport Photo"
+                     class="img-thumbnail"
+                     onclick="openModal(this)">
+            </td>
+            <td data-label="Date of Birth" th:text="${user.dateOfBirth}"></td>
+            <td data-label="Country" th:text="${user.country}"></td>
+            <td data-label="City" th:text="${user.city}"></td>
+            <td data-label="First Name" th:text="${user.firstName}"></td>
+            <td data-label="Last Name" th:text="${user.lastName}"></td>
+            <td data-label="Actions">
                 <form th:action="@{/administrator/users/{userId}/approve(userId=${user.id})}" method="post" class="mb-2">
-                    <input type="text" name="comment" class="form-control mb-2" placeholder="Approve comment" required />
-                    <button type="submit" class="btn btn-custom">Approve</button>
+                    <button type="submit" class="btn btn-sm btn-custom w-100">Approve</button>
                 </form>
                 <form th:action="@{/administrator/users/{userId}/reject(userId=${user.id})}" method="post">
-                    <input type="text" name="comment" class="form-control mb-2" placeholder="Reject comment" required />
-                    <button type="submit" class="btn btn-link-custom">Reject</button>
+                    <input type="text" name="comment" class="form-control mb-2" placeholder="Reason for rejection" required />
+                    <button type="submit" class="btn btn-sm btn-danger w-100">Reject</button>
                 </form>
             </td>
         </tr>
         </tbody>
-    </table>
 
+
+    </table>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Modal for Viewing Image -->
+<!-- Modal -->
 <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="photoModalLabel">Passport Photo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-center">
                 <img id="modalImage" src="" class="img-fluid" alt="Verification Photo">
             </div>
         </div>
@@ -120,10 +172,8 @@
 
 <script>
     function openModal(imgElement) {
-        var modalImage = document.getElementById("modalImage");
-        modalImage.src = imgElement.src;
-        var myModal = new bootstrap.Modal(document.getElementById('photoModal'));
-        myModal.show();
+        document.getElementById("modalImage").src = imgElement.src;
+        new bootstrap.Modal(document.getElementById('photoModal')).show();
     }
 </script>
 </body>

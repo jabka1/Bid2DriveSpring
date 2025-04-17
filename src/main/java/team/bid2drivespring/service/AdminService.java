@@ -17,13 +17,13 @@ public class AdminService {
         return userRepository.findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus.PENDING);
     }
 
-    public void approveVerification(Long userId, String comment) {
+    public void approveVerification(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         user.setVerified(true);
         user.setVerificationStatus(User.VerificationStatus.APPROVED);
-        user.setVerificationComment(comment);
+        user.setVerificationComment(null);
 
         userRepository.save(user);
     }

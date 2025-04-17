@@ -27,9 +27,9 @@ public class AdminController {
     }
 
     @PostMapping("/users/{userId}/approve")
-    public String approveVerification(@PathVariable Long userId, @RequestParam String comment, Model model) {
+    public String approveVerification(@PathVariable Long userId, Model model) {
         try {
-            adminService.approveVerification(userId, comment);
+            adminService.approveVerification(userId);
             return "redirect:/administrator/users/pendingVerification";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());

@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -66,6 +66,24 @@ public class User implements UserDetails {
 
     @Column(nullable = true, columnDefinition = "TEXT")
     private String verificationComment;
+
+    @Column(nullable = true)
+    private String firstName;
+
+    @Column(nullable = true)
+    private String lastName;
+
+    @Column(nullable = true)
+    private LocalDate dateOfBirth;
+
+    @Column(nullable = true)
+    private String country;
+
+    @Column(nullable = true)
+    private String city;
+
+    @Column(nullable = true)
+    private String profilePhotoUrl;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

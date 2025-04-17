@@ -1,6 +1,7 @@
 package team.bid2drivespring.controller;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import team.bid2drivespring.service.EmailService;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Controller
@@ -41,7 +43,7 @@ public class AuthController {
         return "register";
     }
 
-    @PostMapping("/register")
+    /*@PostMapping("/register")
     public String register(@RequestParam String username, @RequestParam String password,
                            @RequestParam String email, @RequestParam("g-recaptcha-response") String gRecaptchaResponse,
                            Model model) {
@@ -68,7 +70,55 @@ public class AuthController {
         }
         userService.registerUser(username, password, email);
         return "redirect:/login";
+    }*/
+
+    @PostMapping("/register")
+    public String register(@RequestParam String username, @RequestParam String password,
+                           @RequestParam String email, @RequestParam String firstName,
+                           @RequestParam String lastName, @RequestParam String dateOfBirthStr,
+                           @RequestParam String countryOfResidence, @RequestParam String city,
+                           @RequestParam("g-recaptcha-response") String gRecaptchaResponse,
+                           Model model) {
+        model.addAttribute("recaptchaSiteKey", recaptchaSiteKey);
+
+        if (!password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!\"#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~]).{8,}$")) {
+            model.addAttribute("error", "Password must meet the security policy (Minimum 8 characters, including a capital letter, a number and a symbol (!, @, #))");
+            return "register";
+        }
+
+        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            model.addAttribute("error", "Invalid email format!");
+            return "register";
+        }
+
+        if (userService.isUsernameTaken(username)) {
+            model.addAttribute("error", "Username is already taken!");
+            return "register";
+        }
+
+        if (userService.isEmailTaken(email)) {
+            model.addAttribute("error", "Email is already registered!");
+            return "register";
+        }
+
+        if (!verifyRecaptcha(gRecaptchaResponse)) {
+            model.addAttribute("error", "reCAPTCHA verification failed!");
+            return "register";
+        }
+
+        LocalDate dateOfBirth = null;
+        try {
+            dateOfBirth = LocalDate.parse(dateOfBirthStr);
+        } catch (Exception e) {
+            model.addAttribute("error", "Invalid date format. Please use the correct format (YYYY-MM-DD).");
+            return "register";
+        }
+
+        userService.registerUser(username, password, email, firstName, lastName, dateOfBirth, countryOfResidence, city);
+
+        return "redirect:/login";
     }
+
 
     @GetMapping("/activate")
     public String activateAccount(@RequestParam String token, Model model) {
@@ -135,13 +185,34 @@ public class AuthController {
         return "changeProfileInfo";
     }
 
-    @PostMapping("/changeProfileInfo")
+    /*@PostMapping("/changeProfileInfo")
     public String changeProfileInfo(@RequestParam String username,
                                     @RequestParam String password,
                                     @RequestParam String confirmPassword,
                                     Model model) {
         try {
             userService.updateUserProfile(username, password, confirmPassword);
+            return "redirect:/profileSettings";
+        } catch (IllegalArgumentException e) {
+            User currentUser = userService.getCurrentUser();
+            model.addAttribute("user", currentUser);
+            model.addAttribute("error", e.getMessage());
+            return "changeProfileInfo";
+        }
+    }*/
+
+    @PostMapping("/changeProfileInfo")
+    public String changeProfileInfo(@RequestParam(required = false) String username,
+                                    @RequestParam(required = false) String password,
+                                    @RequestParam(required = false) String confirmPassword,
+                                    @RequestParam(required = false) String firstName,
+                                    @RequestParam(required = false) String lastName,
+                                    @RequestParam(required = false) String dateOfBirthStr,
+                                    @RequestParam(required = false) String countryOfResidence,
+                                    @RequestParam(required = false) String city,
+                                    Model model) {
+        try {
+            userService.updateUserProfile(username, password, confirmPassword, firstName, lastName, dateOfBirthStr, countryOfResidence, city);
             return "redirect:/profileSettings";
         } catch (IllegalArgumentException e) {
             User currentUser = userService.getCurrentUser();
@@ -211,6 +282,20 @@ public class AuthController {
         model.addAttribute("user", user);
         return "profileSettings";
     }
+
+    @PostMapping("/uploadProfilePhoto")
+    public String uploadProfilePhoto(@RequestParam("file") MultipartFile file, Model model) {
+        try {
+            String photoUrl = userService.uploadProfilePhoto(file);
+            model.addAttribute("success", "Profile photo uploaded successfully!");
+        } catch (IOException e) {
+            model.addAttribute("error", "Failed to upload profile photo.");
+        }
+        User user = userService.getCurrentUser();
+        model.addAttribute("user", user);
+        return "profileSettings";
+    }
+
 
     private boolean verifyRecaptcha(String gRecaptchaResponse) {
         String url = "https://www.google.com/recaptcha/api/siteverify";
