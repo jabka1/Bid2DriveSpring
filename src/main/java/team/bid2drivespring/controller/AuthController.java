@@ -31,6 +31,9 @@ public class AuthController {
     @Value("${google.recaptcha.site.key}")
     private String recaptchaSiteKey;
 
+    @Value("${admin.secret.key}")
+    private String adminSecretKey;
+
     @Autowired
     private UserService userService;
 
@@ -294,6 +297,55 @@ public class AuthController {
         User user = userService.getCurrentUser();
         model.addAttribute("user", user);
         return "profileSettings";
+    }
+
+    @GetMapping("/createAdmin")
+    public String showCreateAdminPage() {
+        return "admin/createAdmin";
+    }
+
+    @PostMapping("/createAdmin")
+    public String createAdmin(
+                                @RequestParam String token,
+                                @RequestParam String username,
+                              @RequestParam String password,
+                              @RequestParam String email,
+                              @RequestParam String firstName,
+                              @RequestParam String lastName,
+                              @RequestParam String dateOfBirthStr,
+                              @RequestParam String country,
+                              @RequestParam String city,
+                              Model model) {
+        if (!token.equals(adminSecretKey)) {
+            model.addAttribute("error", "Invalid admin creation token!");
+            return "admin/createAdmin";
+        }
+
+        if (userService.isUsernameTaken(username)) {
+            model.addAttribute("error", "Username is already taken!");
+            return "admin/createAdmin";
+        }
+
+        if (userService.isEmailTaken(email)) {
+            model.addAttribute("error", "Email is already registered!");
+            return "admin/createAdmin";
+        }
+
+        LocalDate dateOfBirth;
+        try {
+            dateOfBirth = LocalDate.parse(dateOfBirthStr);
+        } catch (Exception e) {
+            model.addAttribute("error", "Invalid date format. Use YYYY-MM-DD.");
+            return "admin/createAdmin";
+        }
+
+        userService.registerAdmin(
+                username, password, email, firstName, lastName,
+                dateOfBirth, country, city, User.Role.ADMIN
+        );
+
+        model.addAttribute("success", "Admin created successfully!");
+        return "admin/createAdmin";
     }
 
 

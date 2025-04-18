@@ -40,7 +40,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/register", "/login", "/activate", "/css/**", "/generateTokenForPasswordRecovery", "/passwordRecovery", "/js/**").permitAll()
+                        .requestMatchers("/register", "/login", "/activate", "/createAdmin","/createAdmin/**", "/css/**", "/generateTokenForPasswordRecovery", "/passwordRecovery", "/js/**").permitAll()
                         .requestMatchers("/administrator/**").hasRole("ADMIN")
                         .requestMatchers("/**").hasRole("USER")
                         .anyRequest().authenticated()
@@ -92,25 +92,6 @@ public class SecurityConfig {
         };
     }
 
-    /*@Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {
-            String username = authentication.getName();
-            User user = userService.getCurrentUser(username);
-
-            if (user.isTwoFactorEnabled()) {
-                String twoFactorCode = userService.generateTwoFactorCode();
-                user.setTwoFactorCode(twoFactorCode);
-                userService.save(user);
-
-                emailService.sendTwoFactorCode(user.getEmail(), twoFactorCode);
-
-                response.sendRedirect("/2fa");
-            } else {
-                response.sendRedirect("/profileSettings");
-            }
-        };
-    }*/
     @Bean
     public AuthenticationSuccessHandler authenticationSuccessHandler() {
         return (HttpServletRequest request, HttpServletResponse response, Authentication authentication) -> {

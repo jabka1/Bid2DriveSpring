@@ -253,6 +253,27 @@ public class UserService implements UserDetailsService {
         return photoUrl;
     }
 
+    public void registerAdmin(String username, String password, String email,
+                                     String firstName, String lastName, LocalDate dateOfBirth,
+                                     String country, String city, User.Role role) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setDateOfBirth(dateOfBirth);
+        user.setCountry(country);
+        user.setCity(city);
+
+        user.setRole(role);
+        user.setActivated(true);
+        user.setVerified(true);
+        user.setTwoFactorEnabled(true);
+        user.setVerificationStatus(User.VerificationStatus.APPROVED);
+        userRepository.save(user);
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

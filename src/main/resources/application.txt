@@ -34,3 +34,5 @@ cloud.aws.credentials.access-key=YOUR_ACCESS_KEY
 cloud.aws.credentials.secret-key=YOUR_SECRET_KEY
 cloud.aws.region.static=YOUR_REGION
 cloud.aws.s3.bucket=YOUR_BUCKET_NAME
+
+admin.secret.key=YOUR_SECRET_KEY
