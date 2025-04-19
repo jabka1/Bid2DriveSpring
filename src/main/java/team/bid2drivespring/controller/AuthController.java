@@ -272,17 +272,21 @@ public class AuthController {
         return "uploadPassportPhoto";
     }
 
-
     @PostMapping("/uploadPassportPhoto")
-    public String uploadPassportPhoto(@RequestParam("file") MultipartFile file, Model model) {
+    public String uploadPassportPhoto(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("passportNumber") String passportNumber,
+            Model model
+    ) {
         try {
-            String photoUrl = userService.uploadVerificationPhoto(file);
-            model.addAttribute("success", "Passport photo uploaded successfully!");
+            String photoUrl = userService.uploadVerificationPhoto(file, passportNumber);
+
+            model.addAttribute("success", "Passport photo and number uploaded successfully!");
+            model.addAttribute("user", userService.getCurrentUser());
         } catch (IOException e) {
             model.addAttribute("error", "Failed to upload passport photo.");
         }
-        User user = userService.getCurrentUser();
-        model.addAttribute("user", user);
+
         return "profileSettings";
     }
 

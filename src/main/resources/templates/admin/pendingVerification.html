@@ -8,7 +8,6 @@
     <style>
         body {
             background-color: #f8f9fa;
-            padding: 20px;
         }
         .btn-custom {
             background-color: #007bff;
@@ -83,14 +82,18 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand">Bid2Drive</a>
-        <div>
-            <a href="/logout" class="btn btn-link header-link">Logout</a>
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e0e0e0; padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#" style="display: flex;">
+                <img src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
         </div>
+        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
     </div>
 </nav>
+
+<br>
 
 <h2 class="text-center mb-4">Pending Verification</h2>
 
@@ -119,7 +122,7 @@
         <tbody>
         <tr th:each="user : ${users}">
             <td data-label="Profile Picture">
-                <img th:src="${user.profilePhotoUrl != null ? user.profilePhotoUrl : 'DefaultProfilePic.jpg'}"
+                <img th:src="${user.profilePhotoUrl != null ? user.profilePhotoUrl : '/DefaultProfilePic.jpg'}"
                      alt="Profile Picture"
                      class="img-thumbnail"
                      onclick="openModal(this)">
@@ -139,14 +142,30 @@
             <td data-label="First Name" th:text="${user.firstName}"></td>
             <td data-label="Last Name" th:text="${user.lastName}"></td>
             <td data-label="Actions">
-                <form th:action="@{/administrator/users/{userId}/approve(userId=${user.id})}" method="post" class="mb-2">
-                    <button type="submit" class="btn btn-sm btn-custom w-100">Approve</button>
+                <input type="hidden" class="correctPassport" th:value="${user.passportNumber}" />
+
+                <label>Enter passport number to approve:</label>
+                <input type="text"
+                       class="form-control mb-2 enteredPassport"
+                       placeholder="Enter passport number"
+                       oninput="checkPassportMatch(this)"
+                       required />
+
+                <form th:action="@{/administrator/users/{userId}/approve(userId=${user.id})}" method="post">
+                    <button type="submit"
+                            class="btn btn-sm btn-success w-100 mb-2 approveButton"
+                            disabled>
+                        Approve
+                    </button>
                 </form>
+
                 <form th:action="@{/administrator/users/{userId}/reject(userId=${user.id})}" method="post">
                     <input type="text" name="comment" class="form-control mb-2" placeholder="Reason for rejection" required />
                     <button type="submit" class="btn btn-sm btn-danger w-100">Reject</button>
                 </form>
             </td>
+
+
         </tr>
         </tbody>
 
@@ -174,6 +193,15 @@
     function openModal(imgElement) {
         document.getElementById("modalImage").src = imgElement.src;
         new bootstrap.Modal(document.getElementById('photoModal')).show();
+    }
+
+    function checkPassportMatch(inputElement) {
+        const container = inputElement.closest('td');
+        const correct = container.querySelector('.correctPassport').value.trim();
+        const entered = inputElement.value.trim();
+        const approveBtn = container.querySelector('.approveButton');
+
+        approveBtn.disabled = (entered !== correct);
     }
 </script>
 </body>

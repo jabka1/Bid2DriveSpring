@@ -57,6 +57,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean verified = false;
 
+    @Column(nullable = true, unique = true)
+    private String passportNumber;
+
     @Column(nullable = true)
     private String verificationPhotoUrl;
 

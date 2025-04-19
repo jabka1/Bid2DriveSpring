@@ -214,7 +214,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public String uploadVerificationPhoto(MultipartFile file) throws IOException {
+    public String uploadVerificationPhoto(MultipartFile file, String passportNumber) throws IOException {
         User user = getCurrentUser();
         String key = "user_verify/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
 
@@ -229,11 +229,13 @@ public class UserService implements UserDetailsService {
         user.setVerified(false);
         user.setVerificationStatus(User.VerificationStatus.PENDING);
         user.setVerificationComment(null);
+        user.setPassportNumber(passportNumber);
 
         userRepository.save(user);
 
         return photoUrl;
     }
+
 
     public String uploadProfilePhoto(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
@@ -269,11 +271,9 @@ public class UserService implements UserDetailsService {
         user.setRole(role);
         user.setActivated(true);
         user.setVerified(true);
-        user.setTwoFactorEnabled(true);
         user.setVerificationStatus(User.VerificationStatus.APPROVED);
         userRepository.save(user);
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

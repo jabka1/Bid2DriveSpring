@@ -12,6 +12,12 @@
     <style>
         body {
             background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-theme {
+            background-color: #343a40;
+            color: #ffffff;
         }
 
         .container {
@@ -21,6 +27,13 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            transition: background-color 0.3s, box-shadow 0.3s, color 0.3s;
+        }
+
+        .dark-theme .container {
+            background-color: #454d55;
+            color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .btn-custom {
@@ -30,6 +43,15 @@
         }
 
         .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        .dark-theme .btn-custom {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .dark-theme .btn-custom:hover {
             background-color: #0056b3;
         }
 
@@ -43,14 +65,26 @@
             background-color: #218838;
         }
 
+        .dark-theme .btn-link-custom {
+            background-color: #218838;
+        }
+
+        .dark-theme .btn-link-custom:hover {
+            background-color: #1e7e34;
+        }
+
+        .navbar {
+            background-color: #e0e0e0;
+            padding: 0 20px;
+            height: 60px;
+        }
+
         .navbar-right {
             margin-left: auto;
         }
 
-        .header {
-            background-color: #007bff;
-            padding: 15px;
-            text-align: center;
+        .dark-theme .navbar {
+            background-color: #444444;
         }
 
         .header a {
@@ -59,12 +93,41 @@
             text-decoration: none;
         }
 
-        .header a:hover {
-            text-decoration: underline;
+        .dark-theme .header a {
+            color: #bb86fc;
         }
 
         .form-group label {
             font-weight: bold;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .dark-theme .error {
+            color: #cf6679;
+        }
+
+        .form-control {
+            background-color: #fff;
+            color: #000;
+            border: 1px solid #ccc;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+        }
+
+        .dark-theme .form-control {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .form-control:focus {
+            border-color: #bb86fc;
+            background-color: #444;
         }
 
         .transparent {
@@ -72,10 +135,39 @@
             pointer-events: none;
         }
 
-        .error {
-            color: red;
+        .dark-theme small,
+        .dark-theme small li {
+            color: #e0e0e0;
         }
+
+        .country-select {
+            width: 100%;
+        }
+
+        .dark-theme .country-select.inside input {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .country-select .flag-dropdown {
+            background-color: #333;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .country-list {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .country-list .country.highlight {
+            background-color: #444;
+        }
+
     </style>
+
+
     <script>
         function toggleConfirmPassword() {
             var password = document.getElementById('password').value;
@@ -92,23 +184,38 @@
         }
 
         $(document).ready(function () {
+            const isDark = getCookie('theme') === 'dark';
+            if (isDark) {
+                document.body.classList.add('dark-theme');
+                $('#logo').attr('src', 'logo_dark.png');
+            }
+
             $("#countryOfResidence").countrySelect({
                 preferredCountries: ['ua', 'us', 'gb', 'de'],
                 defaultCountry: "us"
             });
         });
+
+        function getCookie(name) {
+            let value = "; " + document.cookie;
+            let parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
     </script>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" >Bid2Drive</a>
-        <div class="navbar-right">
-            <div>
-                <a href="/profileSettings" class="btn btn-link header-link">Account</a>
-                <a href="/logout" class="btn btn-link header-link">Logout</a>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#" style="display: flex;">
+                <img id="logo" src="logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <a href="/profileSettings" class="btn btn-link header-link">Account</a>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
         </div>
     </div>
 </nav>
@@ -138,7 +245,7 @@
             <input type="password" id="confirmPassword" name="confirmPassword" class="form-control transparent" />
         </div>
 
-        <small style="color: #555;">
+        <small>
             Password must meet the following criteria:
             <ul>
                 <li>Minimum 8 characters</li>

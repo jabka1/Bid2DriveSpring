@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Passport Photo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
         body {
             background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
         }
+
+        .dark-theme {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
         .container {
             max-width: 600px;
             margin: 50px auto;
@@ -16,42 +25,120 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
+
+        .dark-theme .container {
+            background-color: #454d55;
+            color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
         .btn-custom {
             background-color: #007bff;
             color: #fff;
             border: none;
         }
+
         .btn-custom:hover {
             background-color: #0056b3;
         }
+
         .btn-link-custom {
             background-color: #28a745;
             color: #fff;
             border: none;
         }
+
         .btn-link-custom:hover {
             background-color: #218838;
         }
-        .navbar-right {
-            margin-left: auto;
+
+        .navbar {
+            background-color: #e0e0e0;
+            padding: 0 20px;
+            height: 60px;
         }
-        hr.border-muted {
-            border-top: 2px solid #ddd;
-            margin-top: 20px;
-            margin-bottom: 20px;
+
+        .dark-theme .navbar {
+            background-color: #444444;
+        }
+
+        .header a {
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .dark-theme .header a {
+            color: #bb86fc;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            background-color: #fff;
+            color: #000;
+            border: 1px solid #ccc;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+        }
+
+        .dark-theme .form-control {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .form-control:focus {
+            border-color: #bb86fc;
+            background-color: #444;
+        }
+
+        .dark-theme small {
+            color: #e0e0e0;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        .dark-theme .text-muted {
+            color: #ccc !important;
         }
     </style>
+
+    <script>
+        $(document).ready(function () {
+            const isDark = getCookie('theme') === 'dark';
+            if (isDark) {
+                document.body.classList.add('dark-theme');
+                $('#logo').attr('src', 'logo_dark.png');
+            }
+        });
+
+        function getCookie(name) {
+            let value = "; " + document.cookie;
+            let parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
+    </script>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" >Bid2Drive</a>
-        <div class="navbar-right">
-            <div>
-                <a href="/profileSettings" class="btn btn-link header-link">Account</a>
-                <a href="/logout" class="btn btn-link header-link">Logout</a>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#">
+                <img id="logo" src="logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+        </div>
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <a href="/profileSettings" class="btn btn-link header-link">Account</a>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
         </div>
     </div>
 </nav>
@@ -69,6 +156,11 @@
         <div class="mb-3">
             <label for="file" class="form-label">Choose Passport Photo</label>
             <input type="file" class="form-control" id="file" name="file" accept="image/*" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="passportNumber" class="form-label">Passport Number</label>
+            <input type="text" class="form-control" id="passportNumber" name="passportNumber" required />
         </div>
 
         <div class="text-center">
