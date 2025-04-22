@@ -131,7 +131,7 @@ public class EmailService {
             <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
                 <h2 style="color: green;">Verification Approved</h2>
-                <p>Unfortunately, your passport verification has been denied. Please ensure that your submitted image is clear and all details are readable.</p>
+                <p>We’re happy to let you know that your passport verification has been successfully approved. You now have full access to all platform features without restrictions.</p>
                 <p style="margin-top: 30px; font-size: 12px; color: #777;">You can try uploading a new photo from your account settings.</p>
             </div>
         </body>
