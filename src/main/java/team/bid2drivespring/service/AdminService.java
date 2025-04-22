@@ -13,6 +13,9 @@ public class AdminService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public List<User> getUsersPendingVerification() {
         return userRepository.findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus.PENDING);
     }
@@ -24,6 +27,7 @@ public class AdminService {
         user.setVerified(true);
         user.setVerificationStatus(User.VerificationStatus.APPROVED);
         user.setVerificationComment(null);
+        emailService.sendVerificationApprovedEmail(user.getEmail());
 
         userRepository.save(user);
     }
@@ -35,6 +39,7 @@ public class AdminService {
         user.setVerified(false);
         user.setVerificationStatus(User.VerificationStatus.REJECTED);
         user.setVerificationComment(comment);
+        emailService.sendVerificationRejectedEmail(user.getEmail());
 
         userRepository.save(user);
     }

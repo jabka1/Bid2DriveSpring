@@ -1,5 +1,6 @@
 package team.bid2drivespring.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpEntity;
@@ -20,6 +21,7 @@ import team.bid2drivespring.service.EmailService;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Optional;
 
 @Controller
@@ -81,7 +83,7 @@ public class AuthController {
                            @RequestParam String lastName, @RequestParam String dateOfBirthStr,
                            @RequestParam String countryOfResidence, @RequestParam String city,
                            @RequestParam("g-recaptcha-response") String gRecaptchaResponse,
-                           Model model) {
+                           Model model, HttpServletRequest request) {
         model.addAttribute("recaptchaSiteKey", recaptchaSiteKey);
 
         if (!password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!\"#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~]).{8,}$")) {
@@ -117,7 +119,14 @@ public class AuthController {
             return "register";
         }
 
-        userService.registerUser(username, password, email, firstName, lastName, dateOfBirth, countryOfResidence, city);
+        LocalDate today = LocalDate.now();
+        Period age = Period.between(dateOfBirth, today);
+        if (age.getYears() < 18) {
+            model.addAttribute("error", "You must be at least 18 years old to register.");
+            return "register";
+        }
+
+        userService.registerUser(username, password, email, firstName, lastName, dateOfBirth, countryOfResidence, city, request);
 
         return "redirect:/login";
     }

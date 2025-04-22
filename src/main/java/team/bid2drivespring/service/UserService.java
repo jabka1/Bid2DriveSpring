@@ -2,6 +2,7 @@ package team.bid2drivespring.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,7 +60,7 @@ public class UserService implements UserDetailsService {
     }*/
 
     public void registerUser(String username, String password, String email, String firstName,
-                             String lastName, LocalDate dateOfBirth, String countryOfResidence, String city) {
+                             String lastName, LocalDate dateOfBirth, String countryOfResidence, String city, HttpServletRequest request) {
         String encodedPassword = passwordEncoder.encode(password);
         String activationToken = java.util.UUID.randomUUID().toString();
 
@@ -77,7 +78,7 @@ public class UserService implements UserDetailsService {
 
         userRepository.save(user);
 
-        emailService.sendActivationEmail(user.getEmail(), activationToken);
+        emailService.sendActivationEmail(user.getEmail(), activationToken, request);
     }
 
 

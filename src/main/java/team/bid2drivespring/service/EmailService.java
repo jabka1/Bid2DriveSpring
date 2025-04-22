@@ -1,5 +1,6 @@
 package team.bid2drivespring.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,9 +25,11 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    public void sendActivationEmail(String toEmail, String activationToken) {
+    public void sendActivationEmail(String toEmail, String activationToken, HttpServletRequest request) {
         String subject = "Activate your Bid2Drive account";
-        String activationLink = "http://localhost:8080/activate?token=" + activationToken;
+
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+        String activationLink = baseUrl + "/activate?token=" + activationToken;
 
         String htmlContent = """
             <html>
@@ -119,4 +122,66 @@ public class EmailService {
             System.err.println("Error sending email: " + e.getMessage());
         }
     }
+
+    public void sendVerificationApprovedEmail(String toEmail) {
+        String subject = "Passport Verification Denied";
+        String htmlContent = """
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+                <h2 style="color: green;">Verification Approved</h2>
+                <p>Unfortunately, your passport verification has been denied. Please ensure that your submitted image is clear and all details are readable.</p>
+                <p style="margin-top: 30px; font-size: 12px; color: #777;">You can try uploading a new photo from your account settings.</p>
+            </div>
+        </body>
+        </html>
+        """;
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            System.out.println("Verification denied email sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+        }
+    }
+
+    public void sendVerificationRejectedEmail(String toEmail) {
+        String subject = "Passport Verification Rejected";
+        String htmlContent = """
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+                <h2 style="color: #e76f51;">Verification Rejected</h2>
+                <p>Your passport verification was rejected. It may be due to incorrect or mismatched data.</p>
+                <p>Please make sure to upload a valid photo and ensure that all required fields are correctly filled.</p>
+                <p style="margin-top: 30px; font-size: 12px; color: #777;">You can re-submit the verification from your account page.</p>
+            </div>
+        </body>
+        </html>
+        """;
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            System.out.println("Verification rejected email sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+        }
+    }
+
 }
