@@ -2,7 +2,6 @@ package team.bid2drivespring.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -47,35 +46,6 @@ public class AuthController {
         model.addAttribute("recaptchaSiteKey", recaptchaSiteKey);
         return "register";
     }
-
-    /*@PostMapping("/register")
-    public String register(@RequestParam String username, @RequestParam String password,
-                           @RequestParam String email, @RequestParam("g-recaptcha-response") String gRecaptchaResponse,
-                           Model model) {
-        model.addAttribute("recaptchaSiteKey", recaptchaSiteKey);
-        if (!password.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!\"#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~]).{8,}$")) {
-            model.addAttribute("error", "Password must meet the security policy (Minimum 8 characters, including a capital letter, a number and a symbol (!, @, #))");
-            return "register";
-        }
-        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            model.addAttribute("error", "Invalid email format!");
-            return "register";
-        }
-        if (userService.isUsernameTaken(username)) {
-            model.addAttribute("error", "Username is already taken!");
-            return "register";
-        }
-        if (userService.isEmailTaken(email)) {
-            model.addAttribute("error", "Email is already registered!");
-            return "register";
-        }
-        if (!verifyRecaptcha(gRecaptchaResponse)) {
-            model.addAttribute("error", "reCAPTCHA verification failed!");
-            return "register";
-        }
-        userService.registerUser(username, password, email);
-        return "redirect:/login";
-    }*/
 
     @PostMapping("/register")
     public String register(@RequestParam String username, @RequestParam String password,
@@ -196,22 +166,6 @@ public class AuthController {
         model.addAttribute("user", currentUser);
         return "changeProfileInfo";
     }
-
-    /*@PostMapping("/changeProfileInfo")
-    public String changeProfileInfo(@RequestParam String username,
-                                    @RequestParam String password,
-                                    @RequestParam String confirmPassword,
-                                    Model model) {
-        try {
-            userService.updateUserProfile(username, password, confirmPassword);
-            return "redirect:/profileSettings";
-        } catch (IllegalArgumentException e) {
-            User currentUser = userService.getCurrentUser();
-            model.addAttribute("user", currentUser);
-            model.addAttribute("error", e.getMessage());
-            return "changeProfileInfo";
-        }
-    }*/
 
     @PostMapping("/changeProfileInfo")
     public String changeProfileInfo(@RequestParam(required = false) String username,
@@ -349,6 +303,13 @@ public class AuthController {
             dateOfBirth = LocalDate.parse(dateOfBirthStr);
         } catch (Exception e) {
             model.addAttribute("error", "Invalid date format. Use YYYY-MM-DD.");
+            return "admin/createAdmin";
+        }
+
+        LocalDate today = LocalDate.now();
+        Period age = Period.between(dateOfBirth, today);
+        if (age.getYears() < 18) {
+            model.addAttribute("error", "You must be at least 18 years old to register.");
             return "admin/createAdmin";
         }
 

@@ -3,8 +3,10 @@ package team.bid2drivespring.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -41,16 +43,21 @@ public class Auction {
     private TransmissionType transmission;
 
     @Column(nullable = false)
-    private BigDecimal startingPrice;
+    private int startingPrice;
+
+    @ElementCollection
+    @CollectionTable(name = "auction_bids", joinColumns = @JoinColumn(name = "auction_id"))
+    private List<Bid> bids = new ArrayList<>();
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private ZonedDateTime startTime;
 
     @Column(nullable = true)
-    private LocalDateTime endTime;
+    private ZonedDateTime endTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private boolean active = true;
+    private AuctionStatus status = AuctionStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -83,8 +90,8 @@ public class Auction {
     @Column(nullable = false)
     private BodyType bodyType;
 
-    @Column(nullable = false)
-    private Float engineSize;
+    @Column(nullable = true)
+    private Double engineSize;
 
     @Column(nullable = false)
     private int horsepower;
@@ -95,38 +102,38 @@ public class Auction {
     @Column(nullable = false)
     private boolean hasNavigationSystem;
 
-    @Column(nullable = true)
-    private String carImagesUrls;
+    @ElementCollection
+    private List<String> carImagesUrls = new ArrayList<>();
 
     @Column(nullable = false)
     private boolean hasBeenInAccident;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Float cityFuelConsumption;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Float highwayFuelConsumption;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Float combinedFuelConsumption;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DriveType driveType;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String engineMarking;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, length = 17, unique = true)
     private String vin;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String carGeneration;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String interiorColor;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String interiorMaterial;
 
     @Column(nullable = false)
@@ -141,16 +148,28 @@ public class Auction {
     private EPAStandard epaStandard;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false)
     private TechnicalCondition technicalCondition;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false)
     private BodyCondition bodyCondition;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AuctionVerificationStatus verificationStatus = AuctionVerificationStatus.PENDING;
+
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String verificationComment;
+
+    public enum AuctionStatus {
+        ACTIVE,
+        DEACTIVATED,
+        BLOCKED,
+        WAITING_FOR_SHIPMENT,
+        HANDED_OVER_TO_DELIVERY,
+        RECEIVED
+    }
 
     public enum AuctionType {
         STANDARD,

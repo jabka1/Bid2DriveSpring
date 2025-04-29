@@ -50,6 +50,9 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private java.time.LocalDateTime tokenExpiryTime;
 
+    @Column(nullable = false)
+    private boolean blocked = false;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;

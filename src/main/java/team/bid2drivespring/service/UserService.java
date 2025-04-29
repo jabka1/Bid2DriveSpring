@@ -42,23 +42,6 @@ public class UserService implements UserDetailsService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-
-    /*public void registerUser(String username, String password, String email) {
-        String encodedPassword = passwordEncoder.encode(password);
-        String activationToken = java.util.UUID.randomUUID().toString();
-
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(encodedPassword);
-        user.setEmail(email);
-        user.setActivationtoken(activationToken);
-        user.setActivated(false);
-
-        userRepository.save(user);
-
-        emailService.sendActivationEmail(user.getEmail(), activationToken);
-    }*/
-
     public void registerUser(String username, String password, String email, String firstName,
                              String lastName, LocalDate dateOfBirth, String countryOfResidence, String city, HttpServletRequest request) {
         String encodedPassword = passwordEncoder.encode(password);
@@ -80,41 +63,6 @@ public class UserService implements UserDetailsService {
 
         emailService.sendActivationEmail(user.getEmail(), activationToken, request);
     }
-
-
-    /*public void updateUserProfile(String username, String newPassword, String confirmPassword) {
-        User currentUser = getCurrentUser();
-
-        if (!username.equals(currentUser.getUsername())) {
-            if (isUsernameTaken(username)) {
-                throw new IllegalArgumentException("Username is already taken.");
-            }
-            currentUser.setUsername(username);
-        }
-
-        if (newPassword != null && !newPassword.isEmpty()) {
-            if (confirmPassword == null || confirmPassword.isEmpty()) {
-                throw new IllegalArgumentException("Please confirm your new password.");
-            }
-
-            if (!newPassword.equals(confirmPassword)) {
-                throw new IllegalArgumentException("Passwords do not match.");
-            }
-
-            if (!newPassword.matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!\"#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~]).{8,}$")) {
-                throw new IllegalArgumentException("Password must meet the security policy (Minimum 8 characters, including a capital letter, a number and a symbol (!, @, #))");
-            }
-
-            currentUser.setPassword(passwordEncoder.encode(newPassword));
-        }
-
-        userRepository.save(currentUser);
-
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(currentUser, null,
-                        AuthorityUtils.createAuthorityList("USER"))
-        );
-    }*/
 
     public void updateUserProfile(String username, String newPassword, String confirmPassword, String firstName,
                                   String lastName, String dateOfBirthStr, String countryOfResidence, String city) {

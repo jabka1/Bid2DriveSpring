@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Auction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/css/countrySelect.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/js/countrySelect.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.0/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .navbar {
+            background-color: #e0e0e0;
+            padding: 0 20px;
+            height: 60px;
+        }
+
+        .navbar-right {
+            margin-left: auto;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-link-custom {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-link-custom:hover {
+            background-color: #218838;
+        }
+
+        hr.border-muted {
+            border-top: 2px solid #ddd;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-text {
+            font-size: 1.1em;
+        }
+
+        .status-text.activated {
+            color: green;
+        }
+
+        .status-text.not-activated {
+            color: red;
+        }
+
+        .status-text.pending {
+            color: orange;
+        }
+
+        .status-text.rejected {
+            color: red;
+        }
+
+        .dark-theme .form-control {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .form-control:focus {
+            border-color: #bb86fc;
+            background-color: #444;
+        }
+
+        .dark-theme small,
+        .dark-theme small li {
+            color: #e0e0e0;
+        }
+
+        .dark-theme {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        .dark-theme .navbar {
+            background-color: #444444;
+        }
+
+        .dark-theme small,
+        .dark-theme small li {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .container {
+            background-color: #454d55;
+            color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark-theme fieldset.bg-light {
+            background-color: #454d55 !important;
+            color: #ffffff;
+            border: 1px solid #666666;
+        }
+
+        .dark-theme .btn-custom {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .dark-theme .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        .dark-theme .btn-link-custom {
+            background-color: #218838;
+        }
+
+        .dark-theme .btn-link-custom:hover {
+            background-color: #1e7e34;
+        }
+
+        .dark-theme .status-text.activated {
+            color: greenyellow;
+        }
+
+        .dark-theme .dropdown-menu {
+            background-color: #444 !important;
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item {
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item:hover {
+            background-color: #555;
+        }
+
+        .dark-theme .country-list .country.highlight {
+            background-color: #444;
+        }
+
+        .dark-theme .country-select .flag-dropdown {
+            background-color: #333;
+            border: 1px solid #444;
+        }
+
+        .country-select {
+            width: 100%;
+        }
+
+        .dark-theme .country-list {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .country-select.inside input {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .form-control,
+        .dark-theme select,
+        .dark-theme textarea {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+
+
+
+        .dark-theme select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill='%23e0e0e0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1rem;
+        }
+
+        .dark-theme ::placeholder {
+            color: #b0b0b0;
+            opacity: 1;
+        }
+
+        .dark-theme :-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme ::-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+
+
+        .dark-theme .form-control:focus,
+        .dark-theme select:focus,
+        .dark-theme textarea:focus {
+            background-color: #444;
+            border-color: #bb86fc;
+            outline: none;
+            box-shadow: none;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#" style="display: flex;">
+                <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <div class="dropdown">
+                <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                    <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
+                    <li><a class="dropdown-item" href="/profileSettings">Profile Settings</a></li>
+                </ul>
+            </div>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+
+<div class="text-center my-4">
+    <h1 class="fw-bold display-5">Create New Auction</h1>
+</div>
+
+
+<form action="/auctions/create" method="post" enctype="multipart/form-data" id="createAuctionForm">
+
+    <div class="alert-message alert-error text-center" th:if="${error}">
+        <span th:text="${error}"></span>
+    </div>
+
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">📜 Basic Information</legend>
+
+                <div class="mb-3">
+                    <label for="title" class="form-label">Auction Title</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Enter title" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter description"></textarea>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">🚗 Car Make and Model </legend>
+
+                <div class="row g-3">
+                    <div class="col-md-6" id="carMakeField">
+                        <label for="carMake" class="form-label">Car Brand</label>
+                        <select id="carMake" name="carMake" class="form-select">
+                            <option value="" disabled selected>Select car brand</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6" id="carModelField">
+                        <label for="carModel" class="form-label">Car Model</label>
+                        <select id="carModel" name="carModel" class="form-select">
+                            <option value="" disabled selected>Select car model</option>
+                        </select>
+                    </div>
+
+                    <div id="customCarFields" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="customCarMake" class="form-label">Car Brand</label>
+                                <input type="text" id="customCarMake" name="customCarMake" class="form-control" placeholder="Enter car brand">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="customCarModel" class="form-label">Car Model</label>
+                                <input type="text" id="customCarModel" name="customCarModel" class="form-control" placeholder="Enter car model">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="carGeneration" class="form-label">Car Generation</label>
+                        <input type="text" id="carGeneration" name="carGeneration" class="form-control" placeholder="Enter car generation">
+
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check mt-3">
+                            <input type="checkbox" class="form-check-input" id="customCarCheckbox">
+                            <label for="customCarCheckbox" class="form-check-label">Don't see your car?</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="year" class="form-label">Year</label>
+                        <select id="year" name="year" class="form-select" required></select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="vin" class="form-label">VIN</label>
+                        <input type="text" id="vin" name="vin" class="form-control" minlength="17" maxlength="17" placeholder="Enter VIN" required>
+                    </div>
+
+                    <center>
+                        <div class="col-12">
+                                <small>
+                                    Please be sure to upload a photo of the VIN (Vehicle Identification Number) for your listing.
+                                </small>
+                        </div>
+                    </center>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">⚙️ Mechanical Parameters</legend>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="mileage" class="form-label">🛣️ Mileage (km)</label>
+                        <input type="text" class="form-control" id="mileage" name="mileage" placeholder="Enter mileage" required
+                               oninput="
+                            this.value = this.value
+                                .replace(/\D/g, '')
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                        ">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="fuelType" class="form-label">⛽ Fuel Type</label>
+                        <select id="fuelType" name="fuelType" class="form-select" required>
+                            <option value="" disabled selected>Select fuel type</option>
+                            <option value="GASOLINE">Gasoline</option>
+                            <option value="DIESEL">Diesel</option>
+                            <option value="ELECTRIC">Electric</option>
+                            <option value="HYBRID">Hybrid</option>
+                            <option value="LPG">LPG</option>
+                            <option value="CNG">CNG</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="transmission" class="form-label">Transmission Type</label>
+                        <select id="transmission" name="transmission" class="form-select" required>
+                            <option value="" disabled selected>Select transmission type</option>
+                            <option value="MANUAL">Manual</option>
+                            <option value="AUTOMATIC">Automatic</option>
+                            <option value="SEMI_AUTOMATIC">Semi-Automatic</option>
+                            <option value="CVT">CVT</option>
+                            <option value="DCT">DCT</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="driveType" class="form-label">Drive Type</label>
+                        <select id="driveType" name="driveType" class="form-select" required>
+                            <option value="" disabled selected>Select drive type</option>
+                            <option value="FRONT_WHEEL">Front Wheel</option>
+                            <option value="REAR_WHEEL">Rear Wheel</option>
+                            <option value="ALL_WHEEL">All Wheel</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">🎌 Auction Parameters</legend>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="startingPrice" class="form-label">Starting Price $</label>
+                        <input type="text" class="form-control" id="startingPrice" placeholder="Enter price" name="startingPrice" required
+                               oninput="
+                            this.value = this.value
+                                .replace(/\D/g, '')
+                                .replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                        ">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="auctionType" class="form-label">Auction Type</label>
+                        <select id="auctionType" name="auctionType" class="form-select" required>
+                            <option value="STANDARD">Standard</option>
+                            <option value="LIVE_BID">Live Auction</option>
+                            <option value="USED_CAR_SALE">Used Car Sale</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6" id="startTimeGroup">
+                        <label for="startTime" class="form-label">Auction Start Time</label>
+                        <input type="datetime-local" class="form-control" id="startTime" name="startTime">
+                    </div>
+
+                    <div class="col-md-6" id="endTimeGroup">
+                        <label for="endTime" class="form-label">Auction End Time</label>
+                        <input type="datetime-local" class="form-control" id="endTime" name="endTime">
+                    </div>
+                    <hr>
+                    <small>
+                        <ul>
+                            <li><strong>Standard:</strong> The auction starts immediately upon creation and ends after a minimum of 3 days or more, depending on the user's choice.</li>
+                            <li><strong>Live Auction:</strong> The user chooses both the start and end of the auction. It can start at least 24 hours after its creation and can last from just 10 minutes to 1 year.</li>
+                            <li><strong>Used Car Sale:</strong> A special type of auction that ends only when the user chooses the winner, depending on their own wishes.</li>
+                        </ul>
+                    </small>
+                    <hr>
+                    <center>
+                        <div class="col-md-6">
+                            <label for="userTimeZoneDemo" class="form-label">🌍 Your Time zone</label>
+                            <input type="text" class="form-control" id="userTimeZoneDemo" name="userTimeZone" value="" disabled>
+                        </div>
+                    </center>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">📷 Auction Images</legend>
+                <div class="mb-3">
+                    <label for="carImagesUrls" class="form-label">Car Images (multiple):</label>
+                    <input type="file" class="form-control" id="carImagesUrls" name="carImagesUrls" multiple accept="image/*" onchange="handleFileSelect(event)">
+                </div>
+                <div id="imagePreviewContainer" class="d-flex flex-wrap justify-content-start" style="gap: 10px; max-width: 100%; overflow: hidden; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+                <center>
+                    <div class="col-12">
+                        <small>
+                            Please be sure to upload a photo of the VIN (Vehicle Identification Number) for your listing.
+                        </small>
+                    </div>
+                </center>
+            </fieldset>
+
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">🗺️ Location</legend>
+
+                <div class="mb-3">
+                    <label for="country" class="form-label">Country:</label>
+                    <input type="text" class="form-control" id="country" name="country" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="region" class="form-label">Region:</label>
+                    <input type="text" class="form-control" id="region" name="region" placeholder="Enter your region" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="cityOrVillage" class="form-label">City/Village:</label>
+                    <input type="text" class="form-control" id="cityOrVillage" name="cityOrVillage" placeholder="Enter city or village" required>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">🎨 Car and Interior Color</legend>
+
+                <div class="mb-3">
+                    <label for="carColor" class="form-label">Car Color:</label>
+                    <select id="carColor" name="carColor" class="form-select" required>
+                        <option value="" disabled selected>Select car color</option>
+                        <option value="BLACK" style="background-color: black; color: white;">Black</option>
+                        <option value="WHITE" style="background-color: white; color: black;">White</option>
+                        <option value="RED" style="background-color: red; color: white;">Red</option>
+                        <option value="ORANGE" style="background-color: orange; color: white;">Orange</option>
+                        <option value="YELLOW" style="background-color: yellow; color: black;">Yellow</option>
+                        <option value="GREEN" style="background-color: green; color: white;">Green</option>
+                        <option value="LIGHT_BLUE" style="background-color: lightblue; color: black;">Light Blue</option>
+                        <option value="BLUE" style="background-color: blue; color: white;">Blue</option>
+                        <option value="VIOLET" style="background-color: violet; color: white;">Violet</option>
+                        <option value="SILVER" style="background-color: silver; color: black;">Silver</option>
+                        <option value="GRAY" style="background-color: gray; color: white;">Gray</option>
+                        <option value="PINK" style="background-color: pink; color: black;">Pink</option>
+                        <option value="BROWN" style="background-color: brown; color: white;">Brown</option>
+                        <option value="GOLD" style="background-color: gold; color: black;">Gold</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="interiorColor" class="form-label">Interior Color:</label>
+                    <select id="interiorColor" name="interiorColor" class="form-select">
+                        <option value="" disabled selected>Select interior color</option>
+                        <option value="BLACK" style="background-color: black; color: white;">Black</option>
+                        <option value="BEIGE" style="background-color: beige; color: black;">Beige</option>
+                        <option value="GREY" style="background-color: grey; color: white;">Grey</option>
+                        <option value="BROWN" style="background-color: brown; color: white;">Brown</option>
+                        <option value="RED" style="background-color: red; color: white;">Red</option>
+                        <option value="WHITE" style="background-color: white; color: black;">White</option>
+                        <option value="BLUE" style="background-color: blue; color: white;">Blue</option>
+                        <option value="SILVER" style="background-color: silver; color: black;">Silver</option>
+                        <option value="CHARCOAL" style="background-color: #36454f; color: white;">Charcoal</option>
+                        <option value="OTHER" style="background-color: #f0f0f0; color: black;">Other</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="interiorMaterial" class="form-label">Interior Material:</label>
+                    <select id="interiorMaterial" name="interiorMaterial" class="form-select">
+                        <option value="" disabled selected>Select material</option>
+                        <option value="LEATHER">Leather</option>
+                        <option value="FABRIC">Fabric</option>
+                        <option value="VINYL">Vinyl</option>
+                        <option value="ALCANTARA">Alcantara</option>
+                        <option value="SUEDE">Suede</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">🛻 Car body</legend>
+
+                <div class="mb-3">
+                    <label for="numberOfDoors" class="form-label">Number of Doors:</label>
+                    <select id="numberOfDoors" name="numberOfDoors" class="form-select" required>
+                        <option value="" disabled selected>Select number</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="bodyType" class="form-label">Body Type:</label>
+                    <select id="bodyType" name="bodyType" class="form-select" required>
+                        <option value="" disabled selected>Select body type</option>
+                        <option value="SEDAN">Sedan</option>
+                        <option value="HATCHBACK">Hatchback</option>
+                        <option value="COUPE">Coupe</option>
+                        <option value="CONVERTIBLE">Convertible</option>
+                        <option value="SUV">SUV</option>
+                        <option value="PICKUP">Pickup</option>
+                        <option value="MINIVAN">Minivan</option>
+                        <option value="WAGON">Wagon</option>
+                        <option value="ROADSTER">Roadster</option>
+                        <option value="CROSSOVER">Crossover</option>
+                        <option value="VAN">Van</option>
+                        <option value="LIFTBACK">Liftback</option>
+                        <option value="LIMOUZINE">Limousine</option>
+                    </select>
+                </div>
+
+                <br>
+
+                <center>
+                    <div class="d-flex justify-content-center mb-3 border border-warning p-3 rounded w-50">
+                        <label for="hasBeenInAccident" class="form-label">🚨 Has Been in an Accident? ‎ </label>
+                        <input type="checkbox" id="hasBeenInAccident" name="hasBeenInAccident" class="form-check-input">
+                    </div>
+                </center>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">🐎Engine</legend>
+
+                <div class="mb-3">
+                    <label for="engineSize" class="form-label">Engine Size (liter):</label>
+                    <input type="text" id="engineSize" name="engineSize" class="form-control" placeholder="Enter engine size"
+                           oninput="
+                        this.value = this.value
+                            .replace(',', '.')
+                            .replace(/[^0-9.]/g, '')
+                            .replace(/(\..*)\./g, '$1');
+                    ">
+                </div>
+
+                <div class="mb-3">
+                    <label for="engineMarking" class="form-label">Engine Marking:</label>
+                    <input type="text" id="engineMarking" name="engineMarking" class="form-control" placeholder="Enter engine marking" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="horsepower" class="form-label">Horsepower:</label>
+                    <input type="number" id="horsepower" name="horsepower" class="form-control" min="0" step="1" placeholder="Enter hoursepower" required
+                           oninput="this.value = this.value.replace(/\D/g, '');">
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">➕ Additional Features</legend>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-2 d-flex align-items-center">
+                            <input type="checkbox" id="hasAirConditioning" name="hasAirConditioning" class="form-check-input me-2">
+                            <label for="hasAirConditioning" class="form-label mb-0">❄️ Air Conditioning</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-2 d-flex align-items-center">
+                            <input type="checkbox" id="hasNavigationSystem" name="hasNavigationSystem" class="form-check-input me-2">
+                            <label for="hasNavigationSystem" class="form-label mb-0">🧭 Navigation System</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <div class="border rounded p-2 d-flex align-items-center">
+                            <input type="checkbox" id="hasMultimediaSystem" name="hasMultimediaSystem" class="form-check-input me-2">
+                            <label for="hasMultimediaSystem" class="form-label mb-0">🎸 Multimedia System</label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;" id="FuelConsumptionField">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">⛽ Fuel Consumption</legend>
+
+                <div class="mb-3">
+                    <label for="cityFuelConsumption" class="form-label">🏢 City Fuel Consumption (L/100km):</label>
+                    <input type="number" id="cityFuelConsumption" name="cityFuelConsumption" class="form-control" placeholder="Enter city fuel consumption" min="0" step="0.1">
+                </div>
+
+                <div class="mb-3">
+                    <label for="highwayFuelConsumption" class="form-label">🛣️ Highway Fuel Consumption (L/100km):</label>
+                    <input type="number" id="highwayFuelConsumption" name="highwayFuelConsumption" class="form-control" placeholder="Enter highway fuel consumption" min="0" step="0.1">
+                </div>
+
+                <div class="mb-3">
+                    <label for="combinedFuelConsumption" class="form-label">🖇️ Combined Fuel Consumption (L/100km):</label>
+                    <input type="number" id="combinedFuelConsumption" name="combinedFuelConsumption" class="form-control" placeholder="Enter combined fuel consumption" min="0" step="0.1">
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;" id="EnvironmentalStandardsField">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">🏞️ Environmental Standards</legend>
+
+                <div class="mb-3">
+                    <label for="euroStandard" class="form-label">Euro Standard:</label>
+                    <select id="euroStandard" name="euroStandard" class="form-select">
+                        <option value="" disabled selected>Select Euro Standard</option>
+                        <option value="EURO_1">EURO 1</option>
+                        <option value="EURO_2">EURO 2</option>
+                        <option value="EURO_3">EURO 3</option>
+                        <option value="EURO_4">EURO 4</option>
+                        <option value="EURO_5">EURO 5</option>
+                        <option value="EURO_6">EURO 6</option>
+                        <option value="EURO_6D">EURO 6D</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="epaStandard" class="form-label">EPA Standard (USA):</label>
+                    <select id="epaStandard" name="epaStandard" class="form-select">
+                        <option value="" disabled selected>Select EPA USA Standard</option>
+                        <option value="TIER_1">TIER 1</option>
+                        <option value="TIER_2">TIER 2</option>
+                        <option value="TIER_3">TIER 3</option>
+                        <option value="TIER_4">TIER 4</option>
+                        <option value="TIER_5">TIER 5</option>
+                    </select>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100 px-3" style="max-width: 1000px;">
+            <fieldset class="p-4 mb-4 rounded border shadow-sm bg-light">
+                <legend class="px-2 fw-bold text-uppercase" style="font-size: 1.1rem;">Car Condition</legend>
+
+                <div class="mb-3">
+                    <label for="technicalCondition" class="form-label">Technical Condition:</label>
+                    <select id="technicalCondition" name="technicalCondition" class="form-select" required>
+                        <option value="" disabled selected>Select technical condition</option>
+                        <option value="EXCELLENT">Excellent</option>
+                        <option value="GOOD">Good</option>
+                        <option value="FAIR">Fair</option>
+                        <option value="POOR">Poor</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="bodyCondition" class="form-label">Body Condition:</label>
+                    <select id="bodyCondition" name="bodyCondition" class="form-select" required>
+                        <option value="" disabled selected>Select body condition</option>
+                        <option value="NEW">New</option>
+                        <option value="GOOD">Good</option>
+                        <option value="FAIR">Fair</option>
+                        <option value="DAMAGED">Damaged</option>
+                    </select>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+
+    <input type="hidden" id="userTimeZone" name="userTimeZone" value="">
+    <input type="hidden" id="startTimeHidden" name="startTimeHidden">
+    <input type="hidden" id="endTimeHidden" name="endTimeHidden">
+
+
+    <div class="d-flex justify-content-center mt-4">
+        <button type="submit" class="btn btn-warning btn-lg px-5 shadow-sm rounded-pill">
+            Create Auction
+        </button>
+    </div>
+
+    <br>
+    <br>
+
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Verification Photo">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let startPicker;
+    let endPicker;
+
+    async function initializePickers() {
+        const auctionType = document.getElementById('auctionType').value;
+
+        if (startPicker) startPicker.destroy();
+        if (endPicker) endPicker.destroy();
+
+        const now = new Date();
+
+        if (auctionType === 'STANDARD') {
+            document.getElementById('startTimeGroup').style.display = 'none';
+            document.getElementById('endTimeGroup').style.display = 'block';
+
+            document.getElementById('startTime').value = now.toISOString().slice(0, 16);
+            document.getElementById('startTimeHidden').value = now.toISOString().slice(0, 16);
+            document.getElementById('endTime').value = "";
+
+            endPicker = flatpickr("#endTime", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                minDate: new Date(now.getTime() + 72 * 60 * 60 * 1000).toISOString(),
+                timezone: "UTC",
+            });
+        } else if (auctionType === 'LIVE_BID') {
+            document.getElementById('startTimeGroup').style.display = 'block';
+            document.getElementById('endTimeGroup').style.display = 'block';
+
+            document.getElementById('startTime').value = "";
+            document.getElementById('endTime').value = "";
+            document.getElementById('startTimeHidden').value = "";
+            document.getElementById('endTimeHidden').value = "";
+
+            startPicker = flatpickr("#startTime", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                minDate: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+                timezone: "UTC",
+                onChange: function (selectedDates) {
+                    if (selectedDates.length > 0) {
+                        const startTime = selectedDates[0];
+                        const minEnd = new Date(startTime.getTime() + 10 * 60 * 1000);
+                        const maxEnd = new Date(startTime.getTime() + 60 * 60 * 1000);
+
+                        document.getElementById('endTime').value = "";
+
+                        if (endPicker) endPicker.destroy();
+                        endPicker = flatpickr("#endTime", {
+                            enableTime: true,
+                            dateFormat: "Y-m-d H:i",
+                            time_24hr: true,
+                            minDate: minEnd.toISOString(),
+                            maxDate: maxEnd.toISOString()
+                        });
+                    }
+                }
+            });
+
+            endPicker = flatpickr("#endTime", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                clickOpens: false
+            });
+        } else if (auctionType === 'USED_CAR_SALE') {
+            document.getElementById('startTimeGroup').style.display = 'none';
+            document.getElementById('endTimeGroup').style.display = 'none';
+            document.getElementById('startTime').value = now.toISOString().slice(0, 16);
+            document.getElementById('startTimeHidden').value = now.toISOString().slice(0, 16);
+            document.getElementById('endTime').value = now.toISOString().slice(0, 16);
+            document.getElementById('endTimeHidden').value = now.toISOString().slice(0, 16);
+        }
+
+
+        $.getJSON('http://localhost:8080/car-list.json', function (data) {
+            $('#carMake').empty().append('<option value="" disabled selected>Select Car Brand</option>');
+            $('#carModel').empty().append('<option value="" disabled selected>Select Car Model</option>');
+
+            data.forEach(function (car) {
+                var brand = car.brand;
+                var models = car.models;
+
+                var brandOption = $('<option>', {
+                    value: brand,
+                    text: brand
+                });
+
+                $('#carMake').append(brandOption);
+            });
+
+            $('#carMake').on('change', function () {
+                var selectedBrand = $(this).val();
+                $('#carModel').empty().append('<option value="" disabled selected>Select Car Model</option>');
+
+                if (selectedBrand) {
+                    const selectedCar = data.find(car => car.brand === selectedBrand);
+                    selectedCar.models.forEach(function (model) {
+                        var modelOption = $('<option>', {
+                            value: model,
+                            text: model
+                        });
+                        $('#carModel').append(modelOption);
+                    });
+                }
+            });
+        });
+    }
+
+    document.getElementById('startTime').addEventListener('change', function() {
+        document.getElementById('startTimeHidden').value = new Date(this.value).toISOString().slice(0, 16);
+    });
+
+    document.getElementById('endTime').addEventListener('change', function() {
+        document.getElementById('endTimeHidden').value = new Date(this.value).toISOString().slice(0, 16);
+    });
+
+
+    function populateYearDropdown() {
+        const yearDropdown = document.getElementById('year');
+        const currentYear = new Date().getFullYear();
+        const startYear = currentYear - 100;
+        const endYear = currentYear;
+
+        for (let year = endYear; year >= startYear; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.text = year;
+            yearDropdown.appendChild(option);
+        }
+    }
+
+    window.addEventListener('load', populateYearDropdown);
+
+    document.getElementById('auctionType').addEventListener('change', initializePickers);
+    window.addEventListener('load', initializePickers);
+
+
+    let selectedImages = [];
+
+    function handleFileSelect(event) {
+        const files = Array.from(event.target.files);
+
+        files.forEach(file => {
+            selectedImages.push(file);
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('image-container');
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '150px';
+                img.style.height = '150px';
+                img.style.margin = '5px';
+                img.style.objectFit = 'cover';
+                img.style.cursor = 'pointer';
+
+                img.onclick = function () {
+                    openModal(img);
+                };
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerHTML = '🗑';
+                deleteButton.style.marginLeft = '10px';
+                deleteButton.style.cursor = 'pointer';
+                deleteButton.addEventListener('click', function () {
+                    removeImage(file, imgContainer);
+                });
+
+                imgContainer.appendChild(img);
+                imgContainer.appendChild(deleteButton);
+                document.getElementById('imagePreviewContainer').appendChild(imgContainer);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        event.target.value = '';
+    }
+
+    function removeImage(file, imgContainer) {
+        selectedImages = selectedImages.filter(item => item !== file);
+        imgContainer.remove();
+    }
+
+    function openModal(imgElement) {
+        document.getElementById("modalImage").src = imgElement.src;
+        new bootstrap.Modal(document.getElementById('photoModal')).show();
+    }
+
+    document.getElementById('userTimeZone').value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    function updateFuelTypeFields() {
+        const fuelType = document.getElementById("fuelType").value;
+        const isElectric = fuelType === "ELECTRIC";
+
+        const fields = [
+            "euroStandard",
+            "epaStandard",
+            "cityFuelConsumption",
+            "highwayFuelConsumption",
+            "combinedFuelConsumption",
+            "EnvironmentalStandardsField",
+            "engineSize",
+            "FuelConsumptionField",
+        ];
+
+        fields.forEach(id => {
+            const field = document.getElementById(id);
+            const wrapper = field.closest("div");
+
+            if (isElectric) {
+                wrapper.style.display = "none";
+                field.value = "";
+                if (field.tagName === "SELECT") {
+                    field.selectedIndex = 0;
+                }
+                field.required = false;
+            } else {
+                wrapper.style.display = "block";
+                field.required = true;
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('#customCarCheckbox').change(function () {
+            if ($(this).is(':checked')) {
+                $('#carMake').hide().val("");
+                $('#carModel').hide().val("");
+                $('#carModelField').hide();
+                $('#carMakeField').hide();
+                $('#customCarFields').show();
+
+            } else {
+                $('#carMake').show();
+                $('#carModel').show();
+                $('#carModelField').show();
+                $('#carMakeField').show();
+                $('#customCarFields').hide();
+                $('#customCarMake').val("");
+                $('#customCarModel').val("");
+            }
+        });
+        $("#country").countrySelect({
+            preferredCountries: ['ua', 'us', 'gb', 'de'],
+            defaultCountry: "us"
+        });
+
+        updateFuelTypeFields();
+
+        $('#fuelType').change(updateFuelTypeFields);
+
+        const isDark = getCookie('theme') === 'dark';
+        if (isDark) {
+            document.body.classList.add('dark-theme');
+            $('#logo').attr('src', '/logo_dark.png');
+        }
+    });
+
+    function getCookie(name) {
+        let value = "; " + document.cookie;
+        let parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+
+    document.getElementById("userTimeZoneDemo").value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    document.getElementById('createAuctionForm').addEventListener('submit', function (event) {
+        const dataTransfer = new DataTransfer();
+
+        selectedImages.forEach(file => {
+            dataTransfer.items.add(file);
+        });
+
+        document.querySelector('input[name="carImagesUrls"]').files = dataTransfer.files;
+    });
+
+</script>
+</body>
+</html>
