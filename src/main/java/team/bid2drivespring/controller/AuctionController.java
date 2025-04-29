@@ -34,6 +34,19 @@ public class AuctionController {
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
+
+        User currentUser = userService.getCurrentUser();
+
+        if(!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if(!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+
+
         model.addAttribute("auction", new Auction());
         model.addAttribute("fuelTypes", FuelType.values());
         model.addAttribute("transmissions", TransmissionType.values());
@@ -99,19 +112,8 @@ public class AuctionController {
         ZoneId userZoneId = ZoneId.of(userTimeZone);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm").withZone(userZoneId);
 
-        System.out.println("\nTime: " + startTimeStr + " Zone: " + userTimeZone + " UserZoneID: " + userZoneId + " Endtime: " + endTimeStr);
-
         ZonedDateTime startTime = ZonedDateTime.parse(startTimeStr, formatter);
         ZonedDateTime endTime = null;
-
-        System.out.println("\nstartTime from zonedata: " + startTime);
-
-        System.out.println("\nPics count: " + photos.length);
-
-        for (MultipartFile file : photos) {
-            System.out.println("File name: " + file.getOriginalFilename());
-            System.out.println("File size: " + file.getSize());
-        }
 
         if (endTimeStr != null && !endTimeStr.isEmpty()) {
             endTime = ZonedDateTime.parse(endTimeStr, formatter);
