@@ -124,7 +124,7 @@ public class EmailService {
     }
 
     public void sendVerificationApprovedEmail(String toEmail) {
-        String subject = "Passport Verification Denied";
+        String subject = "Passport Verification Approved";
         String htmlContent = """
         <html>
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">

@@ -1,5 +1,7 @@
 package team.bid2drivespring.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import team.bid2drivespring.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,5 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     List<User> findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus verificationStatus);
+    Page<User> findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus status, Pageable pageable);
+
 }
 
