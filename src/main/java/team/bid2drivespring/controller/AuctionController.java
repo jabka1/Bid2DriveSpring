@@ -45,6 +45,10 @@ public class AuctionController {
             model.addAttribute("message", "Check your email and activate your account.");
             return "error";
         }
+        if(!currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
 
 
         model.addAttribute("auction", new Auction());
@@ -120,7 +124,20 @@ public class AuctionController {
         }
 
         User currentUser = userService.getCurrentUser();
-        
+
+        if(!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if(!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if(!currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+
         if ((carMake == null || carMake.isEmpty()) && (customCarMake == null || customCarMake.isEmpty())) {
             model.addAttribute("error", "Please provide a car brand.");
             return "auctions/createAuction";

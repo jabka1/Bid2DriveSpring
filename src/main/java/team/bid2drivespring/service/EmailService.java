@@ -184,4 +184,72 @@ public class EmailService {
         }
     }
 
+    public void sendCarApprovedEmail(String toEmail, String carMake, String carModel, String vin) {
+        String subject = "Your Listing Has Been Approved!";
+        String htmlContent = """
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+        <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+            <h2 style="color: green;">Listing Approved</h2>
+            <p>Congratulations! Your vehicle listing has been successfully approved and is now live on our platform.</p>
+            <p><strong>Make:</strong> %s</p>
+            <p><strong>Model:</strong> %s</p>
+            <p><strong>VIN:</strong> %s</p>
+            <p style="margin-top: 30px; font-size: 12px; color: #777;">Thank you for using Bid2Drive.</p>
+        </div>
+    </body>
+    </html>
+    """.formatted(carMake, carModel, vin);
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            System.out.println("Car approval email sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+        }
+    }
+
+    public void sendCarRejectedEmail(String toEmail, String carMake, String carModel, String vin, String verificationComment) {
+        String subject = "Your Listing Has Been Rejected";
+        String htmlContent = """
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+        <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+            <h2 style="color: #e76f51;">Listing Rejected</h2>
+            <p>Unfortunately, your vehicle listing was not approved.</p>
+            <p><strong>Make:</strong> %s</p>
+            <p><strong>Model:</strong> %s</p>
+            <p><strong>VIN:</strong> %s</p>
+            <p><strong>Reason:</strong> %s</p>
+            <p style="margin-top: 30px; font-size: 12px; color: #777;">You may update your listing and resubmit it for verification.</p>
+        </div>
+    </body>
+    </html>
+    """.formatted(carMake, carModel, vin, verificationComment);
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            System.out.println("Car rejection email sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending email: " + e.getMessage());
+        }
+    }
+
+
 }

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.service.AdminService;
 
@@ -52,4 +53,59 @@ public class AdminController {
             return "admin/pendingVerification";
         }
     }
+
+    @GetMapping("/cars/pendingVerification")
+    public String getCarsPendingVerification(Model model,
+                                             @RequestParam(defaultValue = "0") int page) {
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<Auction> auctions = adminService.getCarsPendingVerification(pageable);
+
+        model.addAttribute("auctions", auctions);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", auctions.getTotalPages());
+
+        return "admin/pendingCars";
+    }
+
+    @GetMapping("/cars/{id}")
+    public String getAuctionVerificationPage(@PathVariable Long id, Model model) {
+        try {
+            Auction auction = adminService.getAuctionById(id);
+
+            if (auction.getVerificationStatus() != Auction.AuctionVerificationStatus.PENDING) {
+                model.addAttribute("error", "Auction has already been verified or rejected.");
+                return "admin/pendingCars";
+            }
+
+            model.addAttribute("auction", auction);
+            return "admin/carsVerification";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Auction not found.");
+            return "admin/pendingCars";
+        }
+    }
+
+    @PostMapping("/cars/{auctionId}/approve")
+    public String approveAuction(@PathVariable Long auctionId, Model model) {
+        try {
+            adminService.approveAuction(auctionId);
+            return "redirect:/administrator/cars/pendingVerification";
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            model.addAttribute("error", e.getMessage());
+            return "admin/pendingCars";
+        }
+    }
+
+    @PostMapping("/cars/{auctionId}/reject")
+    public String rejectAuction(@PathVariable Long auctionId, @RequestParam String comment, Model model) {
+        try {
+            adminService.rejectAuction(auctionId, comment);
+            return "redirect:/administrator/cars/pendingVerification";
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            model.addAttribute("error", e.getMessage());
+            return "admin/pendingCars";
+        }
+    }
+
+
 }
