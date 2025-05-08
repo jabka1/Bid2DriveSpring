@@ -3,9 +3,9 @@ package team.bid2drivespring.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -50,10 +50,12 @@ public class Auction {
     private List<Bid> bids = new ArrayList<>();
 
     @Column(nullable = false)
-    private ZonedDateTime startTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startTime;
 
     @Column(nullable = true)
-    private ZonedDateTime endTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -164,8 +166,6 @@ public class Auction {
 
     public enum AuctionStatus {
         ACTIVE,
-        DEACTIVATED,
-        BLOCKED,
         WAITING_FOR_SHIPMENT,
         HANDED_OVER_TO_DELIVERY,
         RECEIVED

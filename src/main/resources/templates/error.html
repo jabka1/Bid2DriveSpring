@@ -111,10 +111,21 @@
             <img id="errorImg" src="/error.svg" alt="Error Image" class="error-image" style="width: 300px; height: 300px;">
         </div>
     <br>
-        <div class="alert alert-danger mt-3">
+
+    <center th:if="${message != null and !#strings.isEmpty(message)}">
+        <div class="mt-3">
             <strong>Problem description:</strong>
             <p th:text="${message}"></p>
         </div>
+    </center>
+
+    <center th:if="${message == null or #strings.isEmpty(message)}">
+        <div class="mt-3">
+            <strong>Problem description:</strong>
+            <p>Not working at the moment 😟</p>
+        </div>
+    </center>
+
 </div>
 
 <script>

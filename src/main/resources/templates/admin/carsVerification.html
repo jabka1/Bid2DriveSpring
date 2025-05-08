@@ -123,15 +123,27 @@
     <table class="table table-bordered">
         <tbody>
         <tr><th>Type</th><td th:text="${auction.auctionType}"></td></tr>
+
         <tr th:if="${auction.auctionType.name() == 'LIVE_BID'}">
-            <th>Start Date</th><td th:text="${#temporals.format(auction.startTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <th>Start Date</th>
+            <td>
+                <div>GMT: <span id="start-time-utc" th:text="${#dates.format(auction.startTime, 'yyyy-MM-dd HH:mm')}"></span></div>
+                <div>In your time zone: <span id="start-time-local">Loading...</span></div>
+            </td>
         </tr>
+
         <tr th:if="${auction.auctionType.name() == 'LIVE_BID' or auction.auctionType.name() == 'STANDARD'}">
-            <th>End Date</th><td th:text="${#temporals.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <th>End Date</th>
+            <td>
+                <div>GMT: <span id="end-time-utc" th:text="${#dates.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></div>
+                <div>In your time zone: <span id="end-time-local">Loading...</span></div>
+            </td>
         </tr>
+
         <tr><th>Price</th><td th:text="${auction.startingPrice + ' USD'}"></td></tr>
         </tbody>
     </table>
+
 
     <h2>Technical Specifications</h2>
     <table class="table table-bordered">
@@ -187,6 +199,10 @@
     <table class="table table-bordered">
         <tbody>
         <tr><th>User ID</th><td th:text="${auction.seller.id}"></td></tr>
+        <tr><th>Profile picture</th><td>
+            <img th:src="${auction.seller.profilePhotoUrl != null ? auction.seller.profilePhotoUrl : '/DefaultProfilePic.jpg'}"
+                 alt="Profile Photo" style="max-width: 150px; border-radius: 8px; border: 1px solid #666;" onclick="openModal(this)">
+        </td></tr>
         <tr><th>Username</th><td th:text="${auction.seller.username}"></td></tr>
         <tr><th>First Name</th><td th:text="${auction.seller.firstName}"></td></tr>
         <tr><th>Last Name</th><td th:text="${auction.seller.lastName}"></td></tr>
@@ -202,21 +218,24 @@
         </tbody>
     </table>
 
-    <div class="mb-4">
-        <img th:src="${auction.seller.profilePhotoUrl != null ? auction.seller.profilePhotoUrl : '/DefaultProfilePic.jpg'}"
-             alt="Profile Photo" style="max-width: 150px; border-radius: 8px; border: 1px solid #666;" onclick="openModal(this)">
-    </div>
+    <br>
 
     <form th:action="@{/administrator/cars/{auctionId}/approve(auctionId=${auction.id})}" method="post" class="mb-2">
         <button type="submit" class="btn btn-success w-100">Approve</button>
     </form>
+
+    <br>
 
     <form th:action="@{/administrator/cars/{auctionId}/reject(auctionId=${auction.id})}" method="post">
         <input type="text" name="comment" class="form-control mb-2" placeholder="Reason for rejection" required />
         <button type="submit" class="btn btn-danger w-100">Reject</button>
     </form>
 
-    <a href="/administrator/cars/pendingVerification" class="btn-back">Back to Pending</a>
+    <br>
+
+    <center>
+        <a href="/administrator/cars/pendingVerification" class="btn-back">Back to Pending</a>
+    </center>
 
     <!-- Modal -->
     <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
@@ -233,6 +252,29 @@
     </div>
 </div>
 <script>
+    function convertUtcTextToLocal(utcId, localId) {
+        const utcEl = document.getElementById(utcId);
+        const localEl = document.getElementById(localId);
+        if (!utcEl || !localEl) return;
+
+        const rawText = utcEl.textContent.trim();
+        const iso = rawText.replace(" ", "T") + ":00Z";
+
+        const date = new Date(iso);
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        const pad = n => n.toString().padStart(2, '0');
+        const formatted = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
+        localEl.textContent = `${formatted} (${tz})`;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        convertUtcTextToLocal("start-time-utc", "start-time-local");
+        convertUtcTextToLocal("end-time-utc", "end-time-local");
+    });
+
+
     function openModal(imgElement) {
         document.getElementById("modalImage").src = imgElement.src;
         new bootstrap.Modal(document.getElementById('photoModal')).show();

@@ -2,6 +2,10 @@ package team.bid2drivespring.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +18,15 @@ import team.bid2drivespring.service.AuctionService;
 import team.bid2drivespring.service.UserService;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/auctions")
@@ -45,7 +55,7 @@ public class AuctionController {
             model.addAttribute("message", "Check your email and activate your account.");
             return "error";
         }
-        if(!currentUser.isBlocked()) {
+        if(currentUser.isBlocked()) {
             model.addAttribute("message", "Your account was blocked.");
             return "error";
         }
@@ -116,12 +126,16 @@ public class AuctionController {
         ZoneId userZoneId = ZoneId.of(userTimeZone);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm").withZone(userZoneId);
 
-        ZonedDateTime startTime = ZonedDateTime.parse(startTimeStr, formatter);
-        ZonedDateTime endTime = null;
+        ZonedDateTime zonedStartTime = ZonedDateTime.parse(startTimeStr, formatter);
+        ZonedDateTime zonedEndTime = null;
 
         if (endTimeStr != null && !endTimeStr.isEmpty()) {
-            endTime = ZonedDateTime.parse(endTimeStr, formatter);
+            zonedEndTime = ZonedDateTime.parse(endTimeStr, formatter);
         }
+
+        Date startTime = Date.from(zonedStartTime.withZoneSameInstant(ZoneOffset.UTC).toInstant());
+        Date endTime = zonedEndTime != null ? Date.from(zonedEndTime.withZoneSameInstant(ZoneOffset.UTC).toInstant()) : null;
+
 
         User currentUser = userService.getCurrentUser();
 
@@ -133,7 +147,7 @@ public class AuctionController {
             model.addAttribute("message", "Check your email and activate your account.");
             return "error";
         }
-        if(!currentUser.isBlocked()) {
+        if(currentUser.isBlocked()) {
             model.addAttribute("message", "Your account was blocked.");
             return "error";
         }
@@ -265,6 +279,114 @@ public class AuctionController {
 
         auctionService.uploadImgsAndSaveAuction(auction, photos);
         return "redirect:/auctions/myAuctions";
+    }
+
+    @GetMapping("/standard")
+    public String getStandardAuctions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String carMake,
+            @RequestParam(required = false) String carModel,
+            @RequestParam(required = false) Integer yearFrom,
+            @RequestParam(required = false) Integer yearTo,
+            @RequestParam(required = false) Integer mileageFrom,
+            @RequestParam(required = false) Integer mileageTo,
+            @RequestParam(required = false) Integer horsepowerFrom,
+            @RequestParam(required = false) Integer horsepowerTo,
+            @RequestParam(required = false) Integer priceFrom,
+            @RequestParam(required = false) Integer priceTo,
+            @RequestParam(required = false) Double engineSizeFrom,
+            @RequestParam(required = false) Double engineSizeTo,
+            @RequestParam(required = false) Auction.FuelType fuelType,
+            @RequestParam(required = false) Auction.TransmissionType transmission,
+            @RequestParam(required = false) Auction.BodyType bodyType,
+            @RequestParam(required = false) Auction.DriveType driveType,
+            @RequestParam(required = false) Auction.TechnicalCondition technicalCondition,
+            @RequestParam(required = false) Auction.BodyCondition bodyCondition,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) Integer numberOfDoors,
+            @RequestParam(defaultValue = "year") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            Model model
+    ) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Optional<String> carMakeOpt = Optional.ofNullable(carMake).filter(s -> !s.isBlank());
+        Optional<String> carModelOpt = Optional.ofNullable(carModel).filter(s -> !s.isBlank());
+        Optional<String> countryOpt = Optional.ofNullable(country).filter(s -> !s.isBlank());
+        Optional<String> regionOpt = Optional.ofNullable(region).filter(s -> !s.isBlank());
+
+        Page<Auction> auctions = auctionService.findFilteredStandardAuctions(
+                carMakeOpt,
+                carModelOpt,
+                Optional.ofNullable(yearFrom),
+                Optional.ofNullable(yearTo),
+                Optional.ofNullable(mileageFrom),
+                Optional.ofNullable(mileageTo),
+                Optional.ofNullable(horsepowerFrom),
+                Optional.ofNullable(horsepowerTo),
+                Optional.ofNullable(priceFrom),
+                Optional.ofNullable(priceTo),
+                Optional.ofNullable(engineSizeFrom),
+                Optional.ofNullable(engineSizeTo),
+                Optional.ofNullable(fuelType),
+                Optional.ofNullable(transmission),
+                Optional.ofNullable(bodyType),
+                Optional.ofNullable(driveType),
+                Optional.ofNullable(technicalCondition),
+                Optional.ofNullable(bodyCondition),
+                countryOpt,
+                regionOpt,
+                Optional.ofNullable(numberOfDoors),
+                pageable
+        );
+
+        model.addAttribute("auctions", auctions.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", auctions.getTotalPages());
+
+        model.addAttribute("carMake", carMake);
+        model.addAttribute("carModel", carModel);
+        model.addAttribute("carMakes", auctionService.getAvailableMakes());
+        model.addAttribute("yearFrom", yearFrom);
+        model.addAttribute("yearTo", yearTo);
+        model.addAttribute("mileageFrom", mileageFrom);
+        model.addAttribute("mileageTo", mileageTo);
+        model.addAttribute("horsepowerFrom", horsepowerFrom);
+        model.addAttribute("horsepowerTo", horsepowerTo);
+        model.addAttribute("priceFrom", priceFrom);
+        model.addAttribute("priceTo", priceTo);
+        model.addAttribute("engineSizeFrom", engineSizeFrom);
+        model.addAttribute("engineSizeTo", engineSizeTo);
+        model.addAttribute("fuelType", fuelType);
+        model.addAttribute("transmission", transmission);
+        model.addAttribute("bodyType", bodyType);
+        model.addAttribute("driveType", driveType);
+        model.addAttribute("technicalCondition", technicalCondition);
+        model.addAttribute("bodyCondition", bodyCondition);
+        model.addAttribute("country", country);
+        model.addAttribute("countries", auctionService.getAvailableCountry());
+        model.addAttribute("region", region);
+        model.addAttribute("numberOfDoors", numberOfDoors);
+
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("sortDir", sortDir);
+
+        return "auctions/standard/standardList";
+    }
+
+    @GetMapping("/models-by-make")
+    @ResponseBody
+    public List<String> getModelsByMake(@RequestParam String carMake) {
+        return auctionService.getModelsByMake(carMake);
+    }
+
+    @GetMapping("/regions-by-country")
+    @ResponseBody
+    public List<String> getRegionsByCountry(@RequestParam String country) {
+        return auctionService.getRegionsByCountry(country);
     }
 }
 
