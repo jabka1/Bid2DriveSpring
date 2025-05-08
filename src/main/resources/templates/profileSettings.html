@@ -200,7 +200,8 @@
     <hr class="border-muted" />
 
     <h3>Your account status:</h3>
-    <p class="status-text" th:class="${user.activated} ? 'activated' : 'not-activated'" th:text="${user.activated ? 'Activated' : 'Not Activated! Check your email'}"></p>
+    <strong>Activation: </strong><p class="status-text" th:class="${user.activated} ? 'activated' : 'not-activated'" th:text="${user.activated ? 'Activated' : 'Not Activated! Check your email'}"></p>
+    <strong>Blocked: </strong><p class="status-text" th:class="${user.blocked} ? 'not-activated' : 'activated'" th:text="${user.blocked} ? 'Blocked.' : 'Not blocked'"></p>
     <hr class="border-muted" />
 
     <h3>ID Verification Status:</h3>

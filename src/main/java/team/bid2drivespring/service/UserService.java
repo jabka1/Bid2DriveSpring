@@ -185,6 +185,9 @@ public class UserService implements UserDetailsService {
         return photoUrl;
     }
 
+    public boolean passportExistsForCountry(String passportNumber, String country, Long currentUserId) {
+        return userRepository.existsByPassportNumberAndCountryAndIdNot(passportNumber, country, currentUserId);
+    }
 
     public String uploadProfilePhoto(MultipartFile file) throws IOException {
         if (file.isEmpty()) {

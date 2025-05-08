@@ -16,6 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     Page<User> findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus status, Pageable pageable);
+    boolean existsByPassportNumberAndCountryAndIdNot(String passportNumber, String country, Long id);
 
 }
 

@@ -242,16 +242,25 @@ public class AuthController {
             Model model
     ) {
         try {
-            String photoUrl = userService.uploadVerificationPhoto(file, passportNumber);
+            User currentUser = userService.getCurrentUser();
+            String country = currentUser.getCountry();
 
-            model.addAttribute("success", "Passport photo and number uploaded successfully!");
-            model.addAttribute("user", userService.getCurrentUser());
+            boolean exists = userService.passportExistsForCountry(passportNumber, country, currentUser.getId());
+
+            if (exists) {
+                model.addAttribute("error", "A user with this passport number is already registered.");
+                model.addAttribute("user", currentUser);
+                return "uploadPassportPhoto";
+            }
+
+            String photoUrl = userService.uploadVerificationPhoto(file, passportNumber);
+            model.addAttribute("user", currentUser);
         } catch (IOException e) {
             model.addAttribute("error", "Failed to upload passport photo.");
         }
-
         return "profileSettings";
     }
+
 
     @PostMapping("/uploadProfilePhoto")
     public String uploadProfilePhoto(@RequestParam("file") MultipartFile file, Model model) {
