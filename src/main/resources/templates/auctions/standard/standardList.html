@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Standard Auctions</title>
@@ -240,30 +240,63 @@
             border-color: #6c757d;
         }
 
+        .dark-theme .navbar-nav .nav-link:hover,
+        .dark-theme .navbar-nav .nav-link:focus {
+            color: #66b2ff;
+            text-decoration: none;
+        }
+
+        .dark-theme .navbar-nav .nav-link {
+            color: #ffffff;
+        }
+
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
     <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+
         <div class="d-flex align-items-center h-100">
-            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#" style="display: flex;">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="/" style="display: flex;">
                 <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
             </a>
+
+            <ul class="navbar-nav flex-row gap-3 ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/standard">Standard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/livebid">LiveBid</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/usedcarsale">Used Cars</a>
+                </li>
+            </ul>
         </div>
 
         <div class="d-flex align-items-center ms-auto gap-2">
-            <div class="dropdown">
-                <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
-                    Account
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                    <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
-                    <li><a class="dropdown-item" href="/profileSettings">Profile Settings</a></li>
-                </ul>
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            style="color: inherit; text-decoration: none; background: none; border: none;">
+                        Account
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                        <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
+                        <li><a class="dropdown-item" href="/profileSettings">Profile Settings</a></li>
+                    </ul>
+                </div>
+                <a href="/logout" id="logoutBtn" class="btn btn-danger btn-sm">Logout</a>
             </div>
-            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+
+            <div sec:authorize="isAnonymous()">
+                <a href="/login" class="btn btn-primary">Login</a>
+                <a href="/register" class="btn btn-success">Register</a>
+            </div>
         </div>
+
     </div>
 </nav>
 
@@ -332,7 +365,7 @@
             <form method="get" action="/auctions/standard">
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <label class="form-label">Car Make</label>
+                        <label class="form-label filter-label">Car Make</label>
                         <select name="carMake" id="carMake" class="form-select">
                             <option value="" disabled selected>Select brand</option>
                             <option th:each="make : ${carMakes}" th:value="${make}" th:text="${make}"
@@ -341,7 +374,7 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label">Car Model</label>
+                        <label class="form-label filter-label">Car Model</label>
                         <select name="carModel" id="carModel" class="form-select">
                             <option value="" disabled selected>Select model</option>
                             <option th:if="${carModels != null}"
@@ -486,6 +519,7 @@
                                 <option value="horsepower" th:selected="${sortBy == 'horsepower'}">Horsepower</option>
                                 <option value="numberOfDoors" th:selected="${sortBy == 'numberOfDoors'}">Doors</option>
                                 <option value="endTime" th:selected="${sortBy == 'endTime'}">End Time</option>
+                                <option value="startTime" th:selected="${sortBy == 'startTime'}">Date of public</option>
                             </select>
                         </div>
 
@@ -528,9 +562,12 @@
                 <p th:text="'Transmission: ' + ${auction.transmission}"></p>
                 <p th:text="'Body: ' + ${auction.bodyType}"></p>
                 <p th:text="'Location: ' + ${auction.country} + ', ' + ${auction.region}"></p>
-                <p th:text="'Ends: ' + ${#dates.format(auction.endTime, 'yyyy-MM-dd HH:mm')}">
-                <p>GMT: <span id="end-time-utc" th:text="${#dates.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
-                <p>In your time zone: <span id="end-time-local">Loading...</span></p>
+                <p th:text="'Date of public: ' + ${#dates.format(auction.startTime, 'yyyy-MM-dd')}"></p>
+                <hr>
+                <p><b>End time:</b></p>
+                <p> <b>GMT:</b> <span id="end-time-utc" th:text="${#dates.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+                <p> <b>In your time zone:</b> <span id="end-time-local">Loading...</span></p>
+                <hr>
                 <p th:text="'Price: ' + ${auction.startingPrice} + ' USD'"></p>
                 <a th:href="@{'/auctions/view/' + ${auction.id}}" class="btn btn-sm btn-outline-primary w-100">View Auction</a>
             </div>
@@ -631,15 +668,20 @@
     });
 
     function getCookie(name) {
-        let value = "; " + document.cookie;
-        let parts = value.split("; " + name + "=");
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
         if (parts.length === 2) return parts.pop().split(";").shift();
     }
 
     const isDark = getCookie('theme') === 'dark';
-    if (isDark) {
+    const isAuthenticated = document.querySelector('#logoutBtn') !== null;
+
+    if (isAuthenticated && isDark) {
         document.body.classList.add('dark-theme');
-        $('#logo').attr('src', '/logo_dark.png');
+        const logo = document.getElementById('logo');
+        if (logo) {
+            logo.src = '/logo_dark.png';
+        }
     }
 
     const toggleBtn = document.querySelector('[data-bs-toggle="collapse"]');

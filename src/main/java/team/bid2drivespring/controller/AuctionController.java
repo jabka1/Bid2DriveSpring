@@ -310,6 +310,124 @@ public class AuctionController {
             @RequestParam(defaultValue = "desc") String sortDir,
             Model model
     ) {
+        return getAuctionsByType(
+                Auction.AuctionType.STANDARD,
+                "auctions/standard/standardList",
+                page, size, carMake, carModel, yearFrom, yearTo,
+                mileageFrom, mileageTo, horsepowerFrom, horsepowerTo,
+                priceFrom, priceTo, engineSizeFrom, engineSizeTo,
+                fuelType, transmission, bodyType, driveType,
+                technicalCondition, bodyCondition,
+                country, region, numberOfDoors,
+                sortBy, sortDir,
+                model
+        );
+    }
+
+    @GetMapping("/livebid")
+    public String getLiveBidAuctions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String carMake,
+            @RequestParam(required = false) String carModel,
+            @RequestParam(required = false) Integer yearFrom,
+            @RequestParam(required = false) Integer yearTo,
+            @RequestParam(required = false) Integer mileageFrom,
+            @RequestParam(required = false) Integer mileageTo,
+            @RequestParam(required = false) Integer horsepowerFrom,
+            @RequestParam(required = false) Integer horsepowerTo,
+            @RequestParam(required = false) Integer priceFrom,
+            @RequestParam(required = false) Integer priceTo,
+            @RequestParam(required = false) Double engineSizeFrom,
+            @RequestParam(required = false) Double engineSizeTo,
+            @RequestParam(required = false) Auction.FuelType fuelType,
+            @RequestParam(required = false) Auction.TransmissionType transmission,
+            @RequestParam(required = false) Auction.BodyType bodyType,
+            @RequestParam(required = false) Auction.DriveType driveType,
+            @RequestParam(required = false) Auction.TechnicalCondition technicalCondition,
+            @RequestParam(required = false) Auction.BodyCondition bodyCondition,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) Integer numberOfDoors,
+            @RequestParam(defaultValue = "year") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            Model model
+    ) {
+        return getAuctionsByType(
+                Auction.AuctionType.LIVE_BID,
+                "auctions/livebid/livebidList",
+                page, size, carMake, carModel, yearFrom, yearTo,
+                mileageFrom, mileageTo, horsepowerFrom, horsepowerTo,
+                priceFrom, priceTo, engineSizeFrom, engineSizeTo,
+                fuelType, transmission, bodyType, driveType,
+                technicalCondition, bodyCondition,
+                country, region, numberOfDoors,
+                sortBy, sortDir,
+                model
+        );
+    }
+
+    @GetMapping("/usedcarsale")
+    public String getUsedCarSaleAuctions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String carMake,
+            @RequestParam(required = false) String carModel,
+            @RequestParam(required = false) Integer yearFrom,
+            @RequestParam(required = false) Integer yearTo,
+            @RequestParam(required = false) Integer mileageFrom,
+            @RequestParam(required = false) Integer mileageTo,
+            @RequestParam(required = false) Integer horsepowerFrom,
+            @RequestParam(required = false) Integer horsepowerTo,
+            @RequestParam(required = false) Integer priceFrom,
+            @RequestParam(required = false) Integer priceTo,
+            @RequestParam(required = false) Double engineSizeFrom,
+            @RequestParam(required = false) Double engineSizeTo,
+            @RequestParam(required = false) Auction.FuelType fuelType,
+            @RequestParam(required = false) Auction.TransmissionType transmission,
+            @RequestParam(required = false) Auction.BodyType bodyType,
+            @RequestParam(required = false) Auction.DriveType driveType,
+            @RequestParam(required = false) Auction.TechnicalCondition technicalCondition,
+            @RequestParam(required = false) Auction.BodyCondition bodyCondition,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) Integer numberOfDoors,
+            @RequestParam(defaultValue = "year") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            Model model
+    ) {
+        return getAuctionsByType(
+                Auction.AuctionType.USED_CAR_SALE,
+                "auctions/usedcar/usedcarList",
+                page, size, carMake, carModel, yearFrom, yearTo,
+                mileageFrom, mileageTo, horsepowerFrom, horsepowerTo,
+                priceFrom, priceTo, engineSizeFrom, engineSizeTo,
+                fuelType, transmission, bodyType, driveType,
+                technicalCondition, bodyCondition,
+                country, region, numberOfDoors,
+                sortBy, sortDir,
+                model
+        );
+    }
+
+
+    private String getAuctionsByType(
+            Auction.AuctionType type,
+            String viewPath,
+            int page, int size,
+            String carMake, String carModel,
+            Integer yearFrom, Integer yearTo,
+            Integer mileageFrom, Integer mileageTo,
+            Integer horsepowerFrom, Integer horsepowerTo,
+            Integer priceFrom, Integer priceTo,
+            Double engineSizeFrom, Double engineSizeTo,
+            Auction.FuelType fuelType, Auction.TransmissionType transmission,
+            Auction.BodyType bodyType, Auction.DriveType driveType,
+            Auction.TechnicalCondition technicalCondition, Auction.BodyCondition bodyCondition,
+            String country, String region, Integer numberOfDoors,
+            String sortBy, String sortDir,
+            Model model
+    ) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -318,7 +436,8 @@ public class AuctionController {
         Optional<String> countryOpt = Optional.ofNullable(country).filter(s -> !s.isBlank());
         Optional<String> regionOpt = Optional.ofNullable(region).filter(s -> !s.isBlank());
 
-        Page<Auction> auctions = auctionService.findFilteredStandardAuctions(
+        Page<Auction> auctions = auctionService.findFilteredAuctions(
+                type,
                 carMakeOpt,
                 carModelOpt,
                 Optional.ofNullable(yearFrom),
@@ -370,11 +489,10 @@ public class AuctionController {
         model.addAttribute("countries", auctionService.getAvailableCountry());
         model.addAttribute("region", region);
         model.addAttribute("numberOfDoors", numberOfDoors);
-
         model.addAttribute("sortBy", sortBy);
         model.addAttribute("sortDir", sortDir);
 
-        return "auctions/standard/standardList";
+        return viewPath;
     }
 
     @GetMapping("/models-by-make")

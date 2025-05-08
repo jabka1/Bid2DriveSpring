@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>LiveBid Auctions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .auction-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+
+        .navbar {
+            background-color: #e0e0e0;
+            padding: 0 20px;
+            height: 60px;
+        }
+
+        .filter-label {
+            font-weight: bold;
+        }
+
+        .info-section {
+            background-color: #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 50px;
+        }
+
+        .info-image {
+            width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            max-height: 300px;
+        }
+
+        .info-slide {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .info-slide.active {
+            display: block;
+        }
+
+        .info-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .info-arrow-inline {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #333;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .info-arrow-inline:hover {
+            color: #007bff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-text {
+            position: relative;
+            min-height: 320px;
+        }
+
+        .info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .info-container {
+                flex-direction: row;
+                align-items: stretch;
+            }
+
+            .info-image {
+                width: 50%;
+                max-height: 100%;
+                object-fit: cover;
+            }
+
+            .info-text {
+                width: 50%;
+                min-height: 360px;
+                max-height: 400px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+
+        .dark-theme .form-control {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .form-control:focus {
+            border-color: #bb86fc;
+            background-color: #444;
+        }
+
+        .dark-theme {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        .dark-theme .navbar {
+            background-color: #444444;
+        }
+
+        .dark-theme small,
+        .dark-theme small li {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .dropdown-menu {
+            background-color: #444 !important;
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item {
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item:hover {
+            background-color: #555;
+        }
+
+        .dark-theme .form-control,
+        .dark-theme select,
+        .dark-theme textarea {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+
+        .dark-theme select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill='%23e0e0e0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1rem;
+        }
+
+        .dark-theme ::placeholder {
+            color: #b0b0b0;
+            opacity: 1;
+        }
+
+        .dark-theme :-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme ::-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .form-control:focus,
+        .dark-theme select:focus,
+        .dark-theme textarea:focus {
+            background-color: #444;
+            border-color: #bb86fc;
+            outline: none;
+            box-shadow: none;
+        }
+
+        .dark-theme .auction-card {
+            background-color: #454d55;
+            color: #ffffff;
+            border-color: #666;
+        }
+
+        .dark-theme .info-section {
+            background-color: #3a3f44;
+            color: #ffffff;
+        }
+
+        .dark-theme .card {
+            background-color: #454d55;
+            color: #ffffff;
+            border: 1px solid #666666;
+        }
+
+        .dark-theme .info-arrow-inline {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .info-arrow-inline:hover {
+            color: #66b2ff;
+        }
+
+        .dark-theme .input-group-text {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .btn-outline-secondary {
+            color: #e0e0e0;
+            border-color: #6c757d;
+            background-color: transparent;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .dark-theme .btn-outline-secondary:hover {
+            color: #ffffff;
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .dark-theme .navbar-nav .nav-link:hover,
+        .dark-theme .navbar-nav .nav-link:focus {
+            color: #66b2ff;
+            text-decoration: none;
+        }
+
+        .dark-theme .navbar-nav .nav-link {
+            color: #ffffff;
+        }
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="/" style="display: flex;">
+                <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+
+            <ul class="navbar-nav flex-row gap-3 ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/standard">Standard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/livebid">LiveBid</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/usedcarsale">Used Cars</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            style="color: inherit; text-decoration: none; background: none; border: none;">
+                        Account
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                        <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
+                        <li><a class="dropdown-item" href="/profileSettings">Profile Settings</a></li>
+                    </ul>
+                </div>
+                <a href="/logout" id="logoutBtn" class="btn btn-danger btn-sm">Logout</a>
+            </div>
+
+            <div sec:authorize="isAnonymous()">
+                <a href="/login" class="btn btn-primary">Login</a>
+                <a href="/register" class="btn btn-success">Register</a>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">LiveBid Auctions</h2>
+
+    <div class="container">
+        <div class="info-section">
+            <div class="info-container flex-column flex-md-row">
+                <img src="/livebid-auctions.jpg" alt="LiveBid Auctions" class="info-image mb-3 mb-md-0">
+
+                <div class="info-text">
+                    <div class="info-nav">
+                        <button class="info-arrow-inline" onclick="changeSlide(-1)">‹</button>
+                        <h4 class="mb-0 text-center flex-grow-1">LiveBid Auctions</h4>
+                        <button class="info-arrow-inline" onclick="changeSlide(1)">›</button>
+                    </div>
+
+                    <div class="info-slide active">
+                        <h5 class="mb-3">What Is a LiveBid Auction?</h5>
+                        <p>LiveBid is a fast-paced version of standard auctions. Sellers choose both the start and end times, with auctions running for just 10 to 60 minutes — making timing crucial for buyers and sellers alike.</p>
+                        <ul>
+                            <li>⏰ Set your own start & end time</li>
+                            <li>🕓 Runs in real-time — limited duration</li>
+                            <li>🚗 Ideal for quick deals and competitive bids</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-slide">
+                        <h5 class="mb-3">How to Join a Live Auction?</h5>
+                        <p>Register your account, complete verification, and explore upcoming LiveBid auctions. Join at the scheduled time and bid instantly.</p>
+                        <ul>
+                            <li>👤 Verify your profile</li>
+                            <li>📆 Track scheduled auctions</li>
+                            <li>🔔 Join the auction at the right time</li>
+                            <li>⚡ Place bids before the timer runs out</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-slide">
+                        <h5 class="mb-3">Listing a LiveBid Auction</h5>
+                        <p>A seller can create their own LiveBid auction that will start running at least 24 hours later (depending on the user's selection). Choose the exact start and end time, upload car details, and let buyers compete live in a tight bidding window.</p>
+                        <ul>
+                            <li>🗓️ Set start: minimum 24h from now</li>
+                            <li>⏳ Duration: from 10 min to 1 hour</li>
+                            <li>🖼️ Upload car details & photos</li>
+                            <li>✅ Submit for review and go live!</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center mb-3">
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse"
+                aria-expanded="false" aria-controls="filterCollapse">
+            Show Filters
+        </button>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="collapse mb-4" id="filterCollapse">
+        <div class="card card-body border-primary">
+            <form method="get" action="/auctions/livebid">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Car Make</label>
+                        <select name="carMake" id="carMake" class="form-select">
+                            <option value="" disabled selected>Select brand</option>
+                            <option th:each="make : ${carMakes}" th:value="${make}" th:text="${make}"
+                                    th:selected="${make == carMake}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Car Model</label>
+                        <select name="carModel" id="carModel" class="form-select">
+                            <option value="" disabled selected>Select model</option>
+                            <option th:if="${carModels != null}"
+                                    th:each="model : ${carModels}"
+                                    th:value="${model}" th:text="${model}" th:selected="${model == carModel}">
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Year Range</label>
+                        <div class="input-group">
+                            <input type="number" name="yearFrom" class="form-control" placeholder="From"
+                                   th:value="${yearFrom}">
+                            <input type="number" name="yearTo" class="form-control" placeholder="To"
+                                   th:value="${yearTo}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Price Range (USD)</label>
+                        <div class="input-group">
+                            <input type="number" name="priceFrom" class="form-control" placeholder="Min"
+                                   th:value="${priceFrom}">
+                            <input type="number" name="priceTo" class="form-control" placeholder="Max"
+                                   th:value="${priceTo}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Mileage Range</label>
+                        <div class="input-group">
+                            <input type="number" name="mileageFrom" class="form-control" placeholder="From"
+                                   th:value="${mileageFrom}">
+                            <input type="number" name="mileageTo" class="form-control" placeholder="To"
+                                   th:value="${mileageTo}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Horsepower Range</label>
+                        <div class="input-group">
+                            <input type="number" name="horsepowerFrom" class="form-control" placeholder="From"
+                                   th:value="${horsepowerFrom}">
+                            <input type="number" name="horsepowerTo" class="form-control" placeholder="To"
+                                   th:value="${horsepowerTo}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Engine Size (L)</label>
+                        <div class="input-group">
+                            <input type="number" step="0.1" name="engineSizeFrom" class="form-control"
+                                   placeholder="From" th:value="${engineSizeFrom}">
+                            <input type="number" step="0.1" name="engineSizeTo" class="form-control" placeholder="To"
+                                   th:value="${engineSizeTo}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Fuel Type</label>
+                        <select name="fuelType" class="form-select">
+                            <option value="" disabled selected th:if="${fuelType == null}">Select fuel type</option>
+                            <option th:each="type : ${T(team.bid2drivespring.model.Auction.FuelType).values()}"
+                                    th:value="${type}" th:text="${type}" th:selected="${type == fuelType}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Transmission</label>
+                        <select name="transmission" class="form-select">
+                            <option value="" disabled selected th:if="${transmission == null}">Select transmission
+                            </option>
+                            <option th:each="type : ${T(team.bid2drivespring.model.Auction.TransmissionType).values()}"
+                                    th:value="${type}" th:text="${type}" th:selected="${type == transmission}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Body Type</label>
+                        <select name="bodyType" class="form-select">
+                            <option value="" disabled selected th:if="${bodyType == null}">Select body type</option>
+                            <option th:each="type : ${T(team.bid2drivespring.model.Auction.BodyType).values()}"
+                                    th:value="${type}" th:text="${type}" th:selected="${type == bodyType}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Drive Type</label>
+                        <select name="driveType" class="form-select">
+                            <option value="" disabled selected th:if="${driveType == null}">Select drive type</option>
+                            <option th:each="type : ${T(team.bid2drivespring.model.Auction.DriveType).values()}"
+                                    th:value="${type}" th:text="${type}" th:selected="${type == driveType}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Technical Condition</label>
+                        <select name="technicalCondition" class="form-select">
+                            <option value="" disabled selected th:if="${technicalCondition == null}">Select condition
+                            </option>
+                            <option th:each="type : ${T(team.bid2drivespring.model.Auction.TechnicalCondition).values()}"
+                                    th:value="${type}" th:text="${type}"
+                                    th:selected="${type == technicalCondition}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Body Condition</label>
+                        <select name="bodyCondition" class="form-select">
+                            <option value="" disabled selected th:if="${bodyCondition == null}">Select condition
+                            </option>
+                            <option th:each="type : ${T(team.bid2drivespring.model.Auction.BodyCondition).values()}"
+                                    th:value="${type}" th:text="${type}"
+                                    th:selected="${type == bodyCondition}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Country</label>
+                        <select name="country" id="country" class="form-select">
+                            <option value="" disabled selected>Select country</option>
+                            <option th:each="c : ${countries}" th:value="${c}" th:text="${c}"
+                                    th:selected="${c == country}"></option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Region</label>
+                        <select name="region" id="region" class="form-select">
+                            <option value="" disabled selected>Select region</option>
+                            <option th:if="${regions != null}"
+                                    th:each="r : ${regions}"
+                                    th:value="${r}" th:text="${r}" th:selected="${r == region}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <hr>
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Sort By</label>
+                        <select name="sortBy" class="form-select">
+                            <option value="year" th:selected="${sortBy == 'year'}">Year</option>
+                            <option value="startingPrice" th:selected="${sortBy == 'startingPrice'}">Price</option>
+                            <option value="mileage" th:selected="${sortBy == 'mileage'}">Mileage</option>
+                            <option value="horsepower" th:selected="${sortBy == 'horsepower'}">Horsepower</option>
+                            <option value="numberOfDoors" th:selected="${sortBy == 'numberOfDoors'}">Doors</option>
+                            <option value="endTime" th:selected="${sortBy == 'endTime'}">End Time</option>
+                            <option value="startTime" th:selected="${sortBy == 'startTime'}">Date of public</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label filter-label">Sort Direction</label>
+                        <select name="sortDir" class="form-select">
+                            <option value="asc" th:selected="${sortDir == 'asc'}">Ascending</option>
+                            <option value="desc" th:selected="${sortDir == 'desc'}">Descending</option>
+                        </select>
+                    </div>
+
+                    <hr>
+
+                    <div class="col-md-3 align-self-end">
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    </div>
+                    <br>
+                    <div class="col-md-3 align-self-end">
+                        <a href="/auctions/livebid" class="btn btn-outline-secondary w-100">Reset Filters</a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Auction Cards -->
+    <div class="row">
+        <div class="col-md-12" th:if="${auctions.isEmpty()}">
+            <p class="text-center">No auctions found for the selected filters.</p>
+        </div>
+        <div class="col-md-4" th:each="auction : ${auctions}">
+            <div class="auction-card">
+                <img th:src="${auction.carImagesUrls[0]}" class="img-fluid mb-2" alt="Car Photo"
+                     style="max-height: 200px; object-fit: cover; width: 100%;">
+                <h5 th:text="${auction.carMake + ' ' + auction.carModel + ' (' + auction.year + ')'}"></h5>
+                <p th:text="'Mileage: ' + ${auction.mileage} + ' km'"></p>
+                <p th:text="'Horsepower: ' + ${auction.horsepower} + ' hp'"></p>
+                <p th:text="'Fuel: ' + ${auction.fuelType}"></p>
+                <p th:text="'Transmission: ' + ${auction.transmission}"></p>
+                <p th:text="'Body: ' + ${auction.bodyType}"></p>
+                <p th:text="'Location: ' + ${auction.country} + ', ' + ${auction.region}"></p>
+                <hr>
+                <p><b>Start time:</b></p>
+                <p> <b>GMT:</b> <span id="start-time-utc" th:text="${#dates.format(auction.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+                <p> <b>In your time zone:</b> <span id="start-time-local">Loading...</span></p>
+                <hr>
+                <p><b>End time:</b></p>
+                <p> <b>GMT:</b> <span id="end-time-utc" th:text="${#dates.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+                <p> <b>In your time zone:</b> <span id="end-time-local">Loading...</span></p>
+                <hr>
+
+                <p th:text="'Price: ' + ${auction.startingPrice} + ' USD'"></p>
+                <a th:href="@{'/auctions/view/' + ${auction.id}}" class="btn btn-sm btn-outline-primary w-100">View Auction</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav th:if="${totalPages > 1}">
+        <ul class="pagination justify-content-center mt-4">
+            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{/auctions/livebid(page=${currentPage - 1})}">Previous</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                th:classappend="${currentPage == i} ? 'active'">
+                <a class="page-link" th:href="@{/auctions/livebid(page=${i})}" th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/auctions/livebid(page=${currentPage + 1})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
+</div>
+
+<script>
+
+    document.getElementById("carMake").addEventListener("change", function () {
+        const make = this.value;
+        const modelSelect = document.getElementById("carModel");
+        modelSelect.innerHTML = '<option value="">Select model</option>';
+        if (make) {
+            fetch(`/auctions/models-by-make?carMake=${encodeURIComponent(make)}`)
+                .then(response => response.json())
+                .then(models => {
+                    models.forEach(model => {
+                        const option = document.createElement("option");
+                        option.value = model;
+                        option.text = model;
+                        modelSelect.appendChild(option);
+                    });
+                })
+                .catch(err => console.error('Error loading models:', err));
+        }
+    });
+
+    document.getElementById("country").addEventListener("change", function () {
+        const country = this.value;
+        const regionSelect = document.getElementById("region");
+        regionSelect.innerHTML = '<option value="">Select region</option>';
+
+        if (country) {
+            fetch(`/auctions/regions-by-country?country=${encodeURIComponent(country)}`)
+                .then(response => response.json())
+                .then(regions => {
+                    regions.forEach(region => {
+                        const option = document.createElement("option");
+                        option.value = region;
+                        option.text = region;
+                        regionSelect.appendChild(option);
+                    });
+                })
+                .catch(err => console.error('Error loading regions:', err));
+        }
+    });
+
+    function convertUtcTextToLocal(utcId, localId) {
+        const utcEl = document.getElementById(utcId);
+        const localEl = document.getElementById(localId);
+        if (!utcEl || !localEl) return;
+
+        const rawText = utcEl.textContent.trim();
+        const iso = rawText.replace(" ", "T") + ":00Z";
+
+        const date = new Date(iso);
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        const pad = n => n.toString().padStart(2, '0');
+        const formatted = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
+        localEl.textContent = `${formatted} (${tz})`;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        convertUtcTextToLocal("start-time-utc", "start-time-local");
+        convertUtcTextToLocal("end-time-utc", "end-time-local");
+    });
+
+    let currentSlide = 0;
+
+    function changeSlide(dir) {
+        const slides = document.querySelectorAll(".info-slide");
+        slides[currentSlide].classList.remove("active");
+        currentSlide = (currentSlide + dir + slides.length) % slides.length;
+        slides[currentSlide].classList.add("active");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".info-slide")[0].classList.add("active");
+    });
+
+    function getCookie(name) {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+
+    const isDark = getCookie('theme') === 'dark';
+    const isAuthenticated = document.querySelector('#logoutBtn') !== null;
+
+    if (isAuthenticated && isDark) {
+        document.body.classList.add('dark-theme');
+        const logo = document.getElementById('logo');
+        if (logo) {
+            logo.src = '/logo_dark.png';
+        }
+    }
+
+    const toggleBtn = document.querySelector('[data-bs-toggle="collapse"]');
+    const filterCollapse = document.getElementById('filterCollapse');
+
+    filterCollapse.addEventListener('show.bs.collapse', () => {
+        toggleBtn.textContent = 'Hide Filters';
+    });
+    filterCollapse.addEventListener('hide.bs.collapse', () => {
+        toggleBtn.textContent = 'Show Filters';
+    });
+</script>
+
+</body>
+</html>

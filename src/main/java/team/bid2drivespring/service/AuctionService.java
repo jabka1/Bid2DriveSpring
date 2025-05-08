@@ -53,7 +53,8 @@ public class AuctionService {
         return uploadedUrls;
     }
 
-    public Page<Auction> findFilteredStandardAuctions(
+    public Page<Auction> findFilteredAuctions(
+            Auction.AuctionType auctionType,
             Optional<String> carMake,
             Optional<String> carModel,
             Optional<Integer> yearFrom,
@@ -80,7 +81,7 @@ public class AuctionService {
         Specification<Auction> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            predicates.add(cb.equal(root.get("auctionType"), Auction.AuctionType.STANDARD));
+            predicates.add(cb.equal(root.get("auctionType"), auctionType));
             predicates.add(cb.equal(root.get("status"), Auction.AuctionStatus.ACTIVE));
             predicates.add(cb.equal(root.get("verificationStatus"), Auction.AuctionVerificationStatus.APPROVED));
             predicates.add(cb.isNull(root.get("newOwner")));

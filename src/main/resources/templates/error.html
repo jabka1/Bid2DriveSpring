@@ -77,16 +77,39 @@
         .dark-theme .dropdown-menu .dropdown-item:hover {
             background-color: #555;
         }
+
+        .dark-theme .navbar-nav .nav-link:hover,
+        .dark-theme .navbar-nav .nav-link:focus {
+            color: #66b2ff;
+            text-decoration: none;
+        }
+
+        .dark-theme .navbar-nav .nav-link {
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
     <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+
         <div class="d-flex align-items-center h-100">
-            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#" style="display: flex;">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="/" style="display: flex;">
                 <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
             </a>
+
+            <ul class="navbar-nav flex-row gap-3 ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/standard">Standard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/livebid">LiveBid</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/usedcarsale">Used Cars</a>
+                </li>
+            </ul>
         </div>
 
         <div class="d-flex align-items-center ms-auto gap-2">

@@ -15,7 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByRecoveryToken(String recoveryToken);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
-    List<User> findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus verificationStatus);
     Page<User> findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus status, Pageable pageable);
 
 }
