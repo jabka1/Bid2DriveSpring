@@ -27,4 +27,11 @@ public interface AuctionRepository extends JpaRepository<Auction, Long>, JpaSpec
     @Query("SELECT DISTINCT a.region FROM Auction a WHERE a.country = :country")
     List<String> findDistinctRegionByCountry(@Param("country") String country);
 
+    Optional<Auction> findByIdAndStatusAndVerificationStatusAndNewOwnerIsNull(
+            Long id,
+            Auction.AuctionStatus status,
+            Auction.AuctionVerificationStatus verificationStatus
+    );
+
+    List<Auction> findAllByNewOwnerIsNullAndStatus(Auction.AuctionStatus auctionStatus);
 }

@@ -3,7 +3,6 @@ package team.bid2drivespring.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -168,7 +167,8 @@ public class Auction {
         ACTIVE,
         WAITING_FOR_SHIPMENT,
         HANDED_OVER_TO_DELIVERY,
-        RECEIVED
+        RECEIVED,
+        NOT_SOLD
     }
 
     public enum AuctionType {

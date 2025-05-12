@@ -4,22 +4,21 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Setter
 @Getter
 @Embeddable
 public class Bid {
 
-    private BigDecimal proposedPrice;
+    private int proposedPrice;
     private Long userId;
+    private String username;
 
     public Bid() {
     }
 
-    public Bid(BigDecimal proposedPrice, Long userId) {
+    public Bid(int proposedPrice, Long userId, String username) {
         this.proposedPrice = proposedPrice;
         this.userId = userId;
+        this.username = username;
     }
-
 }

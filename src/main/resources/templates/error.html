@@ -135,20 +135,17 @@
         </div>
     <br>
 
-    <center th:if="${message != null and !#strings.isEmpty(message)}">
-        <div class="mt-3">
-            <strong>Problem description:</strong>
-            <p th:text="${message}"></p>
-        </div>
-    </center>
+    <div class="mt-3 text-center">
+        <strong>Problem description:</strong>
 
-    <center th:if="${message == null or #strings.isEmpty(message)}">
-        <div class="mt-3">
-            <strong>Problem description:</strong>
-            <p>Not working at the moment 😟</p>
-        </div>
-    </center>
+        <p th:if="${message != null and !#strings.isEmpty(message)}" th:text="${message}"></p>
 
+        <p th:if="${(message == null or #strings.isEmpty(message)) and (error != null and !#strings.isEmpty(error))}" th:text="${error}"></p>
+
+        <p th:if="${(message == null or #strings.isEmpty(message)) and (error == null or #strings.isEmpty(error))}">
+            Not working at the moment 😟
+        </p>
+    </div>
 </div>
 
 <script>

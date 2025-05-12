@@ -208,8 +208,8 @@ public class UserService implements UserDetailsService {
     }
 
     public void registerAdmin(String username, String password, String email,
-                                     String firstName, String lastName, LocalDate dateOfBirth,
-                                     String country, String city, User.Role role) {
+                              String firstName, String lastName, LocalDate dateOfBirth,
+                              String country, String city, User.Role role) {
         User user = new User();
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(password));
@@ -268,9 +268,8 @@ public class UserService implements UserDetailsService {
         return userRepository.existsByEmail(email);
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + id + " not found"));
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
-
 }

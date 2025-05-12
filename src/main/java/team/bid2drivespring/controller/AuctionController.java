@@ -6,10 +6,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.Auction.*;
 import team.bid2drivespring.model.User;
@@ -18,15 +22,17 @@ import team.bid2drivespring.service.AuctionService;
 import team.bid2drivespring.service.UserService;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.math.BigDecimal;
+import java.security.Principal;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Controller
 @RequestMapping("/auctions")
@@ -410,6 +416,117 @@ public class AuctionController {
         );
     }
 
+    @GetMapping("/view/{id}")
+    public String viewAuction(@PathVariable Long id, Model model) {
+        Auction auction = auctionService.findPubliclyVisibleAuctionById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found or not available"));
+
+        User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if (!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if (currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+        if (auction.getSeller().getId().equals(currentUser.getId())) {
+            return "redirect:/myView/" + id;
+        }
+
+        model.addAttribute("auction", auction);
+
+
+        if (auction.getAuctionType().name().equals("STANDARD") || auction.getAuctionType().name().equals("LIVE_BID")) {
+            Timestamp start = (Timestamp) auction.getStartTime();
+            Timestamp end = (Timestamp) auction.getEndTime();
+
+            Instant startUtc = start.toLocalDateTime().atOffset(ZoneOffset.UTC).toInstant();
+            Instant endUtc = end.toLocalDateTime().atOffset(ZoneOffset.UTC).toInstant();
+            Instant now = Instant.now();
+
+            boolean isStandardActive = auction.getAuctionType().name().equals("STANDARD") && now.isBefore(endUtc);
+            boolean isLiveBidActive = auction.getAuctionType().name().equals("LIVE_BID")
+                    && now.isAfter(startUtc) && now.isBefore(endUtc);
+            boolean isLiveBidBeforeStart = auction.getAuctionType().name().equals("LIVE_BID")
+                    && now.isBefore(startUtc);
+            boolean isLiveBidEnded = auction.getAuctionType().name().equals("LIVE_BID")
+                    && now.isAfter(endUtc);
+
+            model.addAttribute("isStandardActive", isStandardActive);
+            model.addAttribute("isLiveBidActive", isLiveBidActive);
+            model.addAttribute("isLiveBidBeforeStart", isLiveBidBeforeStart);
+            model.addAttribute("isLiveBidEnded", isLiveBidEnded);
+        }
+        return "auctions/view/auctionDetails";
+    }
+
+
+    @GetMapping("/myView/{id}")
+    public String viewMyAuction(@PathVariable Long id, Model model) {
+        Auction auction = auctionService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found"));
+
+        User currentUser = userService.getCurrentUser();
+
+        if(!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if(!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if(currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+        if (!auction.getSeller().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this auction");
+        }
+
+        model.addAttribute("auction", auction);
+        return "auctions/view/myAuctionDetails";
+    }
+
+    @PostMapping("/{id}/bid")
+    public String placeBid(@PathVariable Long id,
+                           @RequestParam int proposedPrice,
+                           RedirectAttributes redirectAttributes,
+                           Principal principal, Model model) {
+        try {
+            Auction auction = auctionService.findPubliclyVisibleAuctionById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found"));
+
+            User currentUser = userService.getUserByUsername(principal.getName());
+
+            if(!currentUser.isVerified()) {
+                model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+                return "error";
+            }
+            if(!currentUser.isActivated()) {
+                model.addAttribute("message", "Check your email and activate your account.");
+                return "error";
+            }
+            if(currentUser.isBlocked()) {
+                model.addAttribute("message", "Your account was blocked.");
+                return "error";
+            }
+
+            auctionService.placeBid(auction, currentUser, proposedPrice);
+            redirectAttributes.addFlashAttribute("success", "Your bid was placed successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to place bid: " + e.getMessage());
+        }
+
+        return "redirect:/auctions/view/" + id;
+    }
+
 
     private String getAuctionsByType(
             Auction.AuctionType type,
@@ -493,6 +610,11 @@ public class AuctionController {
         model.addAttribute("sortDir", sortDir);
 
         return viewPath;
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void finalizeAuction(){
+        auctionService.assignWinnersToFinishedAuctions();
     }
 
     @GetMapping("/models-by-make")
