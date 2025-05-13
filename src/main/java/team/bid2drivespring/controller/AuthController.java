@@ -131,6 +131,13 @@ public class AuthController {
     @GetMapping("/profileSettings")
     public String showProfileSettingsPage(Model model) {
         User user = userService.getCurrentUser();
+
+        if (user.isDeactivated()) {
+            user.setDeactivated(false);
+            userService.save(user);
+            emailService.sendAccountReactivatedEmail(user.getEmail(), user.getFirstName(), user.getLastName());
+        }
+
         model.addAttribute("user", user);
         return "profileSettings";
     }
@@ -379,7 +386,6 @@ public class AuthController {
         currentUser.setVerificationComment(null);
 
         currentUser.setDeactivated(true);
-        currentUser.setActivated(false);
         userService.save(currentUser);
 
         emailService.sendAccountDeactivatedEmail(
