@@ -256,10 +256,15 @@
     <hr class="border-muted" />
 
     <h3>Edit profile</h3>
-    <div class="text-center">
+    <div class="d-flex justify-content-center gap-3">
         <a href="/changeProfileInfo" class="btn btn-link-custom">Change Profile Information</a>
+
+        <form th:action="@{/deactivateAccount}" method="post" onsubmit="return confirm('Are you sure you want to deactivate your account?')">
+            <button type="submit" class="btn btn-danger">Deactivate Account</button>
+        </form>
     </div>
     <br>
+
 
 </div>
 

@@ -73,6 +73,9 @@ public class User implements UserDetails {
     @Column(nullable = true, columnDefinition = "TEXT")
     private String verificationComment;
 
+    @Column(nullable = false)
+    private boolean deactivated = false;
+
     @Column(nullable = true)
     private String firstName;
 

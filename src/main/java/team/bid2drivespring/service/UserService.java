@@ -12,7 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
+import team.bid2drivespring.model.Auction;
+import team.bid2drivespring.model.Bid;
 import team.bid2drivespring.model.User;
+import team.bid2drivespring.repository.AuctionRepository;
 import team.bid2drivespring.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +38,9 @@ public class UserService implements UserDetailsService {
     private EmailService emailService;
 
     @Autowired
+    private AuctionRepository auctionRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -41,6 +48,7 @@ public class UserService implements UserDetailsService {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
+
 
     public void registerUser(String username, String password, String email, String firstName,
                              String lastName, LocalDate dateOfBirth, String countryOfResidence, String city, HttpServletRequest request) {
@@ -73,6 +81,22 @@ public class UserService implements UserDetailsService {
                 throw new IllegalArgumentException("Username is already taken.");
             }
             currentUser.setUsername(username);
+
+            List<Auction> auctions = auctionRepository.findAllWithBidsByUserId(currentUser.getId());
+
+            for (Auction auction : auctions) {
+                boolean changed = false;
+                for (Bid bid : auction.getBids()) {
+                    if (bid.getUserId().equals(currentUser.getId())) {
+                        bid.setUsername(username);
+                        changed = true;
+                    }
+                }
+                if (changed) {
+                    auctionRepository.save(auction);
+                }
+            }
+
         }
 
         if (newPassword != null && !newPassword.isEmpty()) {
@@ -106,8 +130,14 @@ public class UserService implements UserDetailsService {
             }
         }
         if (countryOfResidence != null && !countryOfResidence.isEmpty()) {
-            currentUser.setCountry(countryOfResidence);
+            if (!countryOfResidence.equals(currentUser.getCountry())) {
+                currentUser.setCountry(countryOfResidence);
+                currentUser.setVerified(false);
+                currentUser.setVerificationComment(null);
+                currentUser.setVerificationStatus(User.VerificationStatus.NOT_SUBMITTED);
+            }
         }
+
         if (city != null && !city.isEmpty()) {
             currentUser.setCity(city);
         }

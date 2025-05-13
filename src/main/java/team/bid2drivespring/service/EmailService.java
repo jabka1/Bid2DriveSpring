@@ -251,5 +251,38 @@ public class EmailService {
         }
     }
 
+    public void sendAccountDeactivatedEmail(String toEmail, String firstName, String lastName) {
+        String subject = "Your Bid2Drive Account Has Been Deactivated";
+        String htmlContent = """
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+                <h2 style="color: #e76f51; text-align: center;">Account Deactivated</h2>
+                <p>Hello <strong>%s %s</strong>,</p>
+                <p>This is to confirm that your Bid2Drive account associated with the email <strong>%s</strong> has been successfully deactivated.</p>
+                <p>You can reactivate your account at any time by logging in again. After reactivation, you will be required to complete the verification process again in order to access all platform features.</p>
+                <p>All your auctions and bids have been canceled and deleted.</p>
+                <p style="margin-top: 30px; font-size: 12px; color: #777;">Thank you for using Bid2Drive.</p>
+            </div>
+        </body>
+        </html>
+        """.formatted(firstName, lastName, toEmail);
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            System.out.println("Deactivation email sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending deactivation email: " + e.getMessage());
+        }
+    }
+
 
 }

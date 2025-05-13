@@ -2,6 +2,7 @@ package team.bid2drivespring.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -10,7 +11,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.User;
+import team.bid2drivespring.repository.AuctionRepository;
 import team.bid2drivespring.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +24,7 @@ import team.bid2drivespring.service.EmailService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -40,6 +44,9 @@ public class AuthController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private AuctionRepository auctionRepository;
 
     @GetMapping("/register")
     public String showRegisterPage(Model model) {
@@ -179,7 +186,7 @@ public class AuthController {
                                     Model model) {
         try {
             userService.updateUserProfile(username, password, confirmPassword, firstName, lastName, dateOfBirthStr, countryOfResidence, city);
-            return "redirect:/profileSettings";
+            return "redirect:/logout";
         } catch (IllegalArgumentException e) {
             User currentUser = userService.getCurrentUser();
             model.addAttribute("user", currentUser);
@@ -330,6 +337,61 @@ public class AuthController {
         model.addAttribute("success", "Admin created successfully!");
         return "admin/createAdmin";
     }
+
+    @PostMapping("/deactivateAccount")
+    public String deactivateAccount(RedirectAttributes redirectAttributes, Model model) {
+        User currentUser = userService.getCurrentUser();
+
+        List<Auction> userAuctions = auctionRepository.findAllBySellerId(currentUser.getId());
+        boolean hasOutgoingDelivery = userAuctions.stream().anyMatch(auction ->
+                auction.getStatus() == Auction.AuctionStatus.WAITING_FOR_SHIPMENT ||
+                        auction.getStatus() == Auction.AuctionStatus.HANDED_OVER_TO_DELIVERY
+        );
+
+        if (hasOutgoingDelivery) {
+            model.addAttribute("message", "You cannot deactivate your account while you have ongoing deliveries for your auctions.");
+            return "error";
+        }
+
+        List<Auction> incomingDeliveryAuctions = auctionRepository.findAllByNewOwnerId(currentUser.getId());
+        boolean hasIncomingDelivery = incomingDeliveryAuctions.stream().anyMatch(auction ->
+                auction.getStatus() == Auction.AuctionStatus.WAITING_FOR_SHIPMENT ||
+                        auction.getStatus() == Auction.AuctionStatus.HANDED_OVER_TO_DELIVERY
+        );
+
+        if (hasIncomingDelivery) {
+            model.addAttribute("message", "You cannot deactivate your account while you are waiting for a delivery.");
+            return "error";
+        }
+
+        auctionRepository.deleteAll(userAuctions);
+
+        List<Auction> allAuctions = auctionRepository.findAll();
+        for (Auction auction : allAuctions) {
+            boolean changed = auction.getBids().removeIf(bid -> bid.getUserId().equals(currentUser.getId()));
+            if (changed) {
+                auctionRepository.save(auction);
+            }
+        }
+
+        currentUser.setVerified(false);
+        currentUser.setVerificationStatus(User.VerificationStatus.NOT_SUBMITTED);
+        currentUser.setVerificationComment(null);
+
+        currentUser.setDeactivated(true);
+        currentUser.setActivated(false);
+        userService.save(currentUser);
+
+        emailService.sendAccountDeactivatedEmail(
+                currentUser.getEmail(),
+                currentUser.getFirstName(),
+                currentUser.getLastName()
+        );
+
+        redirectAttributes.addFlashAttribute("success", "Your account has been deactivated successfully.");
+        return "redirect:/logout";
+    }
+
 
 
     private boolean verifyRecaptcha(String gRecaptchaResponse) {
