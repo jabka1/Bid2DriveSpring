@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>View Auction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .navbar {
+            background-color: #e0e0e0;
+            padding: 0 20px;
+            height: 60px;
+        }
+
+        .navbar-right {
+            margin-left: auto;
+        }
+
+        .section {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .section h5 {
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .main-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .thumbnail-image {
+            width: 100px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .image-gallery {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .property {
+            margin-bottom: 8px;
+        }
+
+        .dark-theme {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        .dark-theme .navbar {
+            background-color: #444444;
+        }
+
+        .dark-theme .section {
+            background-color: #454d55;
+            color: #ffffff;
+        }
+
+        .dark-theme .main-image,
+        .dark-theme .thumbnail-image {
+            background-color: #333;
+        }
+
+        .dark-theme .modal-content {
+            background-color: #444;
+            color: #fff;
+        }
+
+        .dark-theme .form-control {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+
+        .dark-theme .btn-success {
+            background-color: #28a745;
+            border-color: #218838;
+        }
+
+        .dark-theme .btn-outline-primary {
+            color: #e0e0e0;
+            border-color: #6c757d;
+        }
+
+        .dark-theme .btn-outline-primary:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .dark-theme .list-group-item {
+            background-color: #3a3f44;
+            color: #fff;
+            border-color: #555;
+        }
+
+        .dark-theme .alert-success,
+        .dark-theme .alert-danger {
+            background-color: #444;
+            border-color: #555;
+            color: #fff;
+        }
+
+        .dark-theme .form-control:focus,
+        .dark-theme select:focus,
+        .dark-theme textarea:focus {
+            background-color: #444;
+            border-color: #bb86fc;
+            outline: none;
+            box-shadow: none;
+        }
+
+        .dark-theme .navbar-nav .nav-link:hover,
+        .dark-theme .navbar-nav .nav-link:focus {
+            color: #66b2ff;
+            text-decoration: none;
+        }
+
+        .dark-theme .navbar-nav .nav-link {
+            color: #ffffff;
+        }
+
+        .dark-theme ::placeholder {
+            color: #b0b0b0;
+            opacity: 1;
+        }
+
+        .dark-theme :-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme ::-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .dropdown-menu {
+            background-color: #444 !important;
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item {
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item:hover {
+            background-color: #555;
+        }
+        .status-text {
+            font-size: 1.1em;
+        }
+        .status-text.activated {
+            color: green;
+        }
+        .dark-theme .status-text.activated {
+            color: greenyellow;
+        }
+        .status-text.not-activated {
+            color: red;
+        }
+        .status-text.pending {
+            color: orange;
+        }
+        .status-text.rejected {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="/" style="display: flex;">
+                <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+
+            <ul class="navbar-nav flex-row gap-3 ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/standard">Standard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/livebid">LiveBid</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/usedcarsale">Used Cars</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <div class="dropdown">
+                <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Account
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                    <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
+                    <li><a class="dropdown-item" href="/profileSettings">Profile Settings</a></li>
+                </ul>
+            </div>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <h2 th:text="${auction.title}" class="mb-4"></h2>
+
+    <div class="mb-4">
+        <img th:src="${auction.carImagesUrls[0]}" class="main-image" alt="Main Car Photo" onclick="openModal(this)">
+        <div class="image-gallery">
+            <img th:each="img : ${auction.carImagesUrls}" th:src="${img}" class="thumbnail-image" alt="Car Thumbnail" onclick="openModal(this)">
+        </div>
+    </div>
+
+    <div class="section">
+        <h5>Basic Information</h5>
+        <p class="property"><strong>Description:</strong> <span th:text="${auction.description}"></span></p>
+        <p class="property"><strong>Price:</strong> <span th:text="${auction.startingPrice}"></span> USD</p>
+        <p class="property"><strong>Location:</strong> <span th:text="${auction.country + ', ' + auction.region + ', ' + auction.cityOrVillage}"></span></p>
+        <p class="property"><strong>Seller:</strong> <span th:text="${auction.seller.firstName + ' ' + auction.seller.lastName}"></span></p>
+
+        <p class="property"><strong>Auction Type:</strong>
+            <span th:text="${#strings.capitalize(#strings.toLowerCase(auction.auctionType.name().replace('_', ' ')))}"></span>
+        </p>
+
+        <p class="property"><strong>Status:</strong>
+            <span th:text="${#strings.capitalize(#strings.toLowerCase(auction.status.name().replace('_', ' ')))}"></span>
+        </p>
+        <p class="property" th:if="${auction.newOwner != null}">
+            <strong>New Owner:</strong>
+            <a th:href="@{/users/profile/{id}(id=${auction.newOwner.id})}"
+               th:text="${auction.newOwner.firstName + ' ' + auction.newOwner.lastName}"></a>
+        </p>
+
+        <div th:if="${auction.auctionType.name() == 'LIVE_BID'}">
+            <p class="property"><b>Start time:</b></p>
+            <p><b>GMT:</b> <span id="start-time-utc" th:text="${#dates.format(auction.startTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+            <p><b>In your time zone:</b> <span id="start-time-local">Loading...</span></p>
+
+            <p class="property"><b>End time:</b></p>
+            <p><b>GMT:</b> <span id="end-time-utc" th:text="${#dates.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+            <p><b>In your time zone:</b> <span id="end-time-local">Loading...</span></p>
+        </div>
+
+        <div th:if="${auction.auctionType.name() == 'STANDARD'}">
+            <p class="property"><b>End time:</b></p>
+            <p><b>GMT:</b> <span id="end-time-utc" th:text="${#dates.format(auction.endTime, 'yyyy-MM-dd HH:mm')}"></span></p>
+            <p><b>In your time zone:</b> <span id="end-time-local">Loading...</span></p>
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h5>Verification Information</h5>
+
+        <p class="property">
+            <strong>Verification Status:</strong>
+            <span class="status-text"
+                  th:classappend="
+                  ${auction.verificationStatus.name() == 'APPROVED'} ? 'activated' :
+                  (${auction.verificationStatus.name() == 'REJECTED'} ? 'rejected' :
+                  'pending')"
+                  th:text="${#strings.capitalize(#strings.toLowerCase(auction.verificationStatus.name()))}">
+        </span>
+        </p>
+
+        <p class="property" th:if="${auction.verificationComment != null and !auction.verificationComment.isEmpty()}">
+            <strong>Administrator Comment:</strong>
+            <span th:text="${auction.verificationComment}" class="text-muted"></span>
+        </p>
+
+        <p class="property" th:if="${auction.verificationComment == null or auction.verificationComment.isEmpty()}">
+            <strong>Moderator's Comment:</strong>
+            <span>No comment provided.</span>
+        </p>
+    </div>
+
+
+    <div class="section">
+        <h5>Actions</h5>
+        <div class="d-flex gap-2">
+            <a th:href="@{/auctions/edit/{id}(id=${auction.id})}"
+               class="btn btn-outline-warning"
+               th:classappend="${!canEditDescription} ? ' disabled' : ''"
+               th:attr="aria-disabled=${!canEditDescription}">
+                Edit Auction
+            </a>
+        </div>
+    </div>
+
+
+    <div class="section">
+        <h5>
+            Bids
+            <button class="btn btn-sm btn-outline-primary ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#bidsCollapse">
+                Show/Hide Bidders
+            </button>
+        </h5>
+
+        <div class="collapse" id="bidsCollapse">
+            <ul class="list-group mb-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center" th:each="bid : ${auction.bids}">
+                    <div>
+                        <strong>User:</strong>
+                        <a th:href="@{/users/profile/{id}(id=${bid.userId})}" th:text="${bid.username}"></a>
+                        <span th:text="' - ' + ${bid.proposedPrice} + ' USD'"></span>
+                    </div>
+
+                    <div th:if="${auction.auctionType.name() == 'USED_CAR_SALE' and auction.newOwner == null}">
+                        <form th:action="@{/auctions/{auctionId}/sell-to/{userId}(auctionId=${auction.id}, userId=${bid.userId})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Sell</button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+
+            <div th:if="${auction.bids.isEmpty()}" class="text-muted mb-3">No bids yet.</div>
+
+            <div th:if="${success}" class="alert alert-success mt-2" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-danger mt-2" th:text="${error}"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h5>Car Details</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="property"><strong>Make / Model:</strong> <span th:text="${auction.carMake + ' ' + auction.carModel}"></span></p>
+                <p class="property"><strong>Car Generation:</strong> <span th:text="${auction.carGeneration}"></span></p>
+                <p class="property"><strong>Year:</strong> <span th:text="${auction.year}"></span></p>
+                <p class="property"><strong>VIN:</strong> <span th:text="${auction.vin}"></span></p>
+                <p class="property"><strong>Body Type:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.bodyType.name(), '_', ' ').toLowerCase())}"></span></p>
+                <p class="property"><strong>Drive:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.driveType.name(), '_', ' ').toLowerCase())}"></span></p>
+                <p class="property"><strong>Color:</strong> <span th:text="${auction.carColor}"></span></p>
+                <p class="property"><strong>Engine Marking:</strong> <span th:text="${auction.engineMarking}"></span></p>
+            </div>
+            <div class="col-md-6">
+                <p class="property"><strong>Mileage:</strong> <span th:text="${auction.mileage}"></span> km</p>
+                <p class="property"><strong>Fuel Type:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.fuelType.name(), '_', ' ').toLowerCase())}"></span></p>
+                <p class="property"><strong>Transmission:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.transmission.name(), '_', ' ').toLowerCase())}"></span></p>
+                <p class="property" th:if="${auction.engineSize != null}"><strong>Engine Size:</strong> <span th:text="${auction.engineSize}"></span> L</p>
+                <p class="property"><strong>Horsepower:</strong> <span th:text="${auction.horsepower}"></span> hp</p>
+                <p class="property" th:if="${auction.euroStandard != null}"><strong>EURO Standard:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.euroStandard.name(), '_', ' ').toLowerCase())}"></span></p>
+                <p class="property" th:if="${auction.epaStandard != null}"><strong>EPA Standard:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.epaStandard.name(), '_', ' ').toLowerCase())}"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" th:if="${auction.fuelType.name() != 'ELECTRIC'}">
+        <h5>Fuel Consumption</h5>
+        <div class="row">
+            <div class="col-md-4" th:if="${auction.cityFuelConsumption != null}">
+                <p class="property"><strong>City:</strong> <span th:text="${auction.cityFuelConsumption}"></span> L/100km</p>
+            </div>
+            <div class="col-md-4" th:if="${auction.highwayFuelConsumption != null}">
+                <p class="property"><strong>Highway:</strong> <span th:text="${auction.highwayFuelConsumption}"></span> L/100km</p>
+            </div>
+            <div class="col-md-4" th:if="${auction.combinedFuelConsumption != null}">
+                <p class="property"><strong>Combined:</strong> <span th:text="${auction.combinedFuelConsumption}"></span> L/100km</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h5>Interior & Features</h5>
+        <p class="property"><strong>Color:</strong> <span th:text="${auction.interiorColor}"></span></p>
+        <p class="property"><strong>Material:</strong> <span th:text="${auction.interiorMaterial}"></span></p>
+        <p class="property"><strong>Doors:</strong> <span th:text="${auction.numberOfDoors}"></span></p>
+        <p class="property"><strong>Air Conditioning:</strong> <span th:text="${auction.hasAirConditioning ? 'Yes' : 'No'}"></span></p>
+        <p class="property"><strong>Navigation System:</strong> <span th:text="${auction.hasNavigationSystem ? 'Yes' : 'No'}"></span></p>
+        <p class="property"><strong>Multimedia:</strong> <span th:text="${auction.hasMultimediaSystem ? 'Yes' : 'No'}"></span></p>
+    </div>
+
+    <div class="section">
+        <h5>Technical Condition</h5>
+        <p class="property"><strong>Technical:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.technicalCondition.name(), '_', ' ').toLowerCase())}"></span></p>
+        <p class="property"><strong>Body:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.bodyCondition.name(), '_', ' ').toLowerCase())}"></span></p>
+        <p class="property"><strong>Accident:</strong> <span th:text="${auction.hasBeenInAccident ? 'Yes' : 'No'}"></span></p>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Verification Photo">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(imgElement) {
+        document.getElementById("modalImage").src = imgElement.src;
+        new bootstrap.Modal(document.getElementById('photoModal')).show();
+    }
+
+    function convertUtcTextToLocal(utcId, localId) {
+        const utcEl = document.getElementById(utcId);
+        const localEl = document.getElementById(localId);
+        if (!utcEl || !localEl) return;
+
+        const rawText = utcEl.textContent.trim();
+        const iso = rawText.replace(" ", "T") + ":00Z";
+
+        const date = new Date(iso);
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        const pad = n => n.toString().padStart(2, '0');
+        const formatted = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+
+        localEl.textContent = `${formatted} (${tz})`;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        convertUtcTextToLocal("start-time-utc", "start-time-local");
+        convertUtcTextToLocal("end-time-utc", "end-time-local");
+
+        const getCookie = name => {
+            const value = "; " + document.cookie;
+            const parts = value.split("; " + name + "=");
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        };
+
+        if (getCookie('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            $('#logo').attr('src', '/logo_dark.png');
+        }
+    });
+</script>
+
+</body>
+</html>

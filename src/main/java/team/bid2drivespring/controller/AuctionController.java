@@ -1,7 +1,9 @@
 package team.bid2drivespring.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.Auction.*;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.repository.AuctionRepository;
+import team.bid2drivespring.repository.UserRepository;
 import team.bid2drivespring.service.AuctionService;
 import team.bid2drivespring.service.UserService;
 
@@ -47,6 +50,9 @@ public class AuctionController {
 
     @Autowired
     private AuctionRepository auctionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -436,7 +442,7 @@ public class AuctionController {
             return "error";
         }
         if (auction.getSeller().getId().equals(currentUser.getId())) {
-            return "redirect:/myView/" + id;
+            return "redirect:/auctions/myView/" + id;
         }
 
         model.addAttribute("auction", auction);
@@ -490,6 +496,17 @@ public class AuctionController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the owner of this auction");
         }
 
+        boolean hasBids = !auction.getBids().isEmpty();
+        boolean isEditableStatus =
+                auction.getStatus() == Auction.AuctionStatus.NOT_SOLD ||
+                        auction.getVerificationStatus() == Auction.AuctionVerificationStatus.PENDING ||
+                        auction.getVerificationStatus() == Auction.AuctionVerificationStatus.REJECTED;
+
+        boolean canEditAll = !hasBids || isEditableStatus;
+        boolean canEditDescription = auction.getNewOwner() == null;
+
+        model.addAttribute("canEditAll", canEditAll);
+        model.addAttribute("canEditDescription", canEditDescription);
         model.addAttribute("auction", auction);
         return "auctions/view/myAuctionDetails";
     }
@@ -527,6 +544,52 @@ public class AuctionController {
         return "redirect:/auctions/view/" + id;
     }
 
+    @PostMapping("/{auctionId}/sell-to/{userId}")
+    public String sellToUser(@PathVariable Long auctionId,
+                             @PathVariable Long userId,
+                             RedirectAttributes redirectAttributes,
+                             Principal principal,
+                             Model model) {
+
+        Auction auction = auctionService.findById(auctionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found"));
+        User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if (!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if (currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+
+        if (!auction.getAuctionType().name().equals("USED_CAR_SALE")) {
+            model.addAttribute("error", "This operation is allowed only for used car sales.");
+            return "error";
+        }
+        if (!auction.getSeller().getId().equals(currentUser.getId())) {
+            model.addAttribute("error", "You are not authorized to sell this auction.");
+            return "error";
+        }
+
+        Optional<User> buyerOpt = userRepository.findById(userId);
+        if (buyerOpt.isEmpty()) {
+            model.addAttribute("error", "User not found.");
+            return "error";
+        }
+
+        auction.setNewOwner(buyerOpt.get());
+        auction.setStatus(Auction.AuctionStatus.WAITING_FOR_SHIPMENT);
+        auctionService.saveAuction(auction);
+
+        redirectAttributes.addFlashAttribute("success", "Car has been successfully assigned to the buyer.");
+        return "redirect:/auctions/myView/" + auctionId;
+    }
 
     private String getAuctionsByType(
             Auction.AuctionType type,
@@ -611,6 +674,123 @@ public class AuctionController {
 
         return viewPath;
     }
+
+
+
+
+
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Auction> optionalAuction = auctionRepository.findById(id);
+        if (optionalAuction.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Auction not found.");
+            return "redirect:/auctions/myAuctions";
+        }
+
+        Auction auction = optionalAuction.get();
+        User currentUser = userService.getCurrentUser();
+
+        if (!auction.getSeller().getId().equals(currentUser.getId())) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to edit this auction.");
+            return "redirect:/auctions/myAuctions";
+        }
+
+        boolean hasBids = !auction.getBids().isEmpty();
+        boolean isDeletableStatus =
+                auction.getStatus() == Auction.AuctionStatus.NOT_SOLD ||
+                        auction.getVerificationStatus() == Auction.AuctionVerificationStatus.PENDING ||
+                        auction.getVerificationStatus() == Auction.AuctionVerificationStatus.REJECTED;
+
+        boolean canDelete = !hasBids || isDeletableStatus;
+
+        model.addAttribute("auction", auction);
+        model.addAttribute("canEditAll", !hasBids);
+        model.addAttribute("canDelete", canDelete);
+        return "auctions/editAuction";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String updateAuction(@PathVariable Long id,
+                                @ModelAttribute("auction") Auction updatedAuction,
+                                RedirectAttributes redirectAttributes) {
+
+        Optional<Auction> optionalAuction = auctionRepository.findById(id);
+        if (optionalAuction.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Auction not found.");
+            return "redirect:/auctions/myAuctions";
+        }
+
+        Auction auction = optionalAuction.get();
+        User currentUser = userService.getCurrentUser();
+
+        if (!auction.getSeller().getId().equals(currentUser.getId())) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to update this auction.");
+            return "redirect:/auctions/myAuctions";
+        }
+
+        boolean hasBids = !auction.getBids().isEmpty();
+
+        auction.setDescription(updatedAuction.getDescription());
+
+        if (!hasBids) {
+            auction.setTitle(updatedAuction.getTitle());
+            auction.setStartingPrice(updatedAuction.getStartingPrice());
+            auction.setCityOrVillage(updatedAuction.getCityOrVillage());
+            auction.setTechnicalCondition(updatedAuction.getTechnicalCondition());
+            auction.setBodyCondition(updatedAuction.getBodyCondition());
+            auction.setCarColor(updatedAuction.getCarColor());
+            auction.setInteriorColor(updatedAuction.getInteriorColor());
+            auction.setInteriorMaterial(updatedAuction.getInteriorMaterial());
+            auction.setEngineMarking(updatedAuction.getEngineMarking());
+            auction.setNumberOfDoors(updatedAuction.getNumberOfDoors());
+            auction.setEuroStandard(updatedAuction.getEuroStandard());
+            auction.setEpaStandard(updatedAuction.getEpaStandard());
+            auction.setHasAirConditioning(updatedAuction.isHasAirConditioning());
+            auction.setHasMultimediaSystem(updatedAuction.isHasMultimediaSystem());
+            auction.setHasNavigationSystem(updatedAuction.isHasNavigationSystem());
+            auction.setDriveType(updatedAuction.getDriveType());
+        }
+
+        auctionRepository.save(auction);
+        redirectAttributes.addFlashAttribute("success", "Auction updated successfully.");
+        return "redirect:/auctions/myAuctions";
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteAuction(@PathVariable Long id,
+                                RedirectAttributes redirectAttributes) {
+
+        Optional<Auction> optionalAuction = auctionRepository.findById(id);
+        if (optionalAuction.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Auction not found.");
+            return "redirect:/auctions/myAuctions";
+        }
+
+        Auction auction = optionalAuction.get();
+        User currentUser = userService.getCurrentUser();
+
+        boolean isOwner = auction.getSeller().getId().equals(currentUser.getId());
+        boolean noBids = auction.getBids().isEmpty();
+        boolean isDeletableStatus = auction.getStatus() == AuctionStatus.NOT_SOLD
+                || auction.getVerificationStatus() == AuctionVerificationStatus.PENDING
+                || auction.getVerificationStatus() == AuctionVerificationStatus.REJECTED;
+
+        if (!isOwner) {
+            redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this auction.");
+        } else if (noBids || isDeletableStatus) {
+            auctionService.deleteAuctionWithImages(auction);
+            redirectAttributes.addFlashAttribute("success", "Auction deleted successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Auction cannot be deleted after receiving bids.");
+        }
+
+        return "redirect:/auctions/myAuctions";
+    }
+
+
+
+
+
 
     @Scheduled(fixedRate = 60000)
     public void finalizeAuction(){

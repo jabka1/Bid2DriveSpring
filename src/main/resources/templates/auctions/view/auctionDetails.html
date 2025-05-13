@@ -221,7 +221,11 @@
         <p class="property"><strong>Description:</strong> <span th:text="${auction.description}"></span></p>
         <p class="property"><strong>Price:</strong> <span th:text="${auction.startingPrice}"></span> USD</p>
         <p class="property"><strong>Location:</strong> <span th:text="${auction.country + ', ' + auction.region + ', ' + auction.cityOrVillage}"></span></p>
-        <p class="property"><strong>Seller:</strong> <span th:text="${auction.seller.firstName + ' ' + auction.seller.lastName}"></span></p>
+        <p class="property">
+            <strong>Seller:</strong>
+            <a th:href="@{/users/profile/{id}(id=${auction.seller.id})}"
+               th:text="${auction.seller.firstName + ' ' + auction.seller.lastName}"></a>
+        </p>
         <p class="property"><strong>Auction Type:</strong>
             <span th:text="${#strings.capitalize(#strings.toLowerCase(auction.auctionType.name().replace('_', ' ')))}"></span>
         </p>

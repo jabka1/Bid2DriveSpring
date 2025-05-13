@@ -57,6 +57,19 @@ public class AuctionService {
         return uploadedUrls;
     }
 
+    public void deleteAuctionWithImages(Auction auction) {
+        for (String imageUrl : auction.getCarImagesUrls()) {
+            String key = extractS3Key(imageUrl);
+            s3Client.deleteObject(bucketName, key);
+        }
+
+        auctionRepository.delete(auction);
+    }
+
+    private String extractS3Key(String url) {
+        return url.substring(url.indexOf("auction_photo/"));
+    }
+
     public Page<Auction> findFilteredAuctions(
             Auction.AuctionType auctionType,
             Optional<String> carMake,
