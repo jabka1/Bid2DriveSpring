@@ -163,6 +163,8 @@ public class Auction {
     @Column(nullable = true, columnDefinition = "TEXT")
     private String verificationComment;
 
+
+
     public enum AuctionStatus {
         ACTIVE,
         WAITING_FOR_SHIPMENT,
@@ -255,7 +257,19 @@ public class Auction {
         REJECTED
     }
 
+
+
     public int getFinalPrice(){
         return bids.getLast().getProposedPrice();
     }
+
+    public Long getFinalBidUser() {
+        return bids.getLast().getUserId();
+    }
+
+    public Bid getLastUserBid(Long userId) {
+        List<Bid> userBids = bids.stream().filter(b -> b.getUserId().equals(userId)).toList();
+        return userBids.isEmpty() ? null : userBids.getLast();
+    }
+
 }

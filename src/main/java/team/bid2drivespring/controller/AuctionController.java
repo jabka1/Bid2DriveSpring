@@ -32,10 +32,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 @Controller
 @RequestMapping("/auctions")
@@ -816,7 +813,6 @@ public class AuctionController {
         return "redirect:/auctions/myWonAuctions";
     }
 
-
     @GetMapping("/myAuctions")
     public String viewMyAuctions(@RequestParam(required = false) Auction.AuctionStatus status,
                                  @RequestParam(required = false) Auction.AuctionType type,
@@ -904,6 +900,42 @@ public class AuctionController {
         return "auctions/wonAuctions";
     }
 
+    @GetMapping("/myBids")
+    public String viewMyBids(@RequestParam(required = false) Auction.AuctionType type,
+                             Model model) {
+        User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if (!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if (currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+
+        List<Auction> activeAuctions = auctionRepository.findByStatus(Auction.AuctionStatus.ACTIVE);
+        List<Auction> filtered = new ArrayList<>();
+
+        for (Auction auction : activeAuctions) {
+            boolean hasUserBid = auction.getBids().stream()
+                    .anyMatch(bid -> bid.getUserId().equals(currentUser.getId()));
+            if (hasUserBid && (type == null || auction.getAuctionType() == type)) {
+                filtered.add(auction);
+            }
+        }
+
+        model.addAttribute("auctions", filtered);
+        model.addAttribute("selectedType", type);
+        model.addAttribute("typeOptions", Auction.AuctionType.values());
+        model.addAttribute("userId", currentUser.getId());
+
+        return "auctions/myBids";
+    }
 
     @Scheduled(fixedRate = 60000)
     public void finalizeAuction(){

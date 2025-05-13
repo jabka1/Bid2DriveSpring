@@ -39,4 +39,5 @@ public interface AuctionRepository extends JpaRepository<Auction, Long>, JpaSpec
     List<Auction> findAllByNewOwnerIsNullAndStatus(Auction.AuctionStatus auctionStatus);
     List<Auction> findAllBySellerId(Long id);
     List<Auction> findAllByNewOwnerId(Long id);
+    List<Auction> findByStatus(Auction.AuctionStatus auctionStatus);
 }
