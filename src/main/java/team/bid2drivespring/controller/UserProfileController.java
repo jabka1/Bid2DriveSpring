@@ -44,6 +44,10 @@ public class UserProfileController {
         User targetUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
+        if (targetUser.getRole() == User.Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access to admin profiles is restricted");
+        }
+
         model.addAttribute("user", targetUser);
         return "users/profile";
     }

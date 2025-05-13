@@ -675,10 +675,6 @@ public class AuctionController {
         return viewPath;
     }
 
-
-
-
-
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Optional<Auction> optionalAuction = auctionRepository.findById(id);
@@ -787,10 +783,61 @@ public class AuctionController {
         return "redirect:/auctions/myAuctions";
     }
 
+    @PostMapping("/{id}/handOver")
+    public String markAsHandedOver(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Auction auction = auctionService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (auction.getStatus() == Auction.AuctionStatus.WAITING_FOR_SHIPMENT && auction.getNewOwner() != null) {
+            auction.setStatus(Auction.AuctionStatus.HANDED_OVER_TO_DELIVERY);
+            auctionRepository.save(auction);
+            redirectAttributes.addFlashAttribute("success", "Auction marked as handed over to delivery.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Invalid action.");
+        }
+
+        return "redirect:/auctions/myView/" + id;
+    }
 
 
+    @GetMapping("/myAuctions")
+    public String viewMyAuctions(@RequestParam(required = false) Auction.AuctionStatus status,
+                                 @RequestParam(required = false) Auction.AuctionType type,
+                                 @RequestParam(required = false) Auction.AuctionVerificationStatus verification,
+                                 Model model) {
+        User currentUser = userService.getCurrentUser();
 
+        if (!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if (!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if (currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
 
+        List<Auction> allAuctions = auctionRepository.findAllBySellerId(currentUser.getId());
+
+        List<Auction> filteredAuctions = allAuctions.stream()
+                .filter(a -> status == null || a.getStatus() == status)
+                .filter(a -> type == null || a.getAuctionType() == type)
+                .filter(a -> verification == null || a.getVerificationStatus() == verification)
+                .toList();
+
+        model.addAttribute("auctions", filteredAuctions);
+        model.addAttribute("statusOptions", Auction.AuctionStatus.values());
+        model.addAttribute("typeOptions", Auction.AuctionType.values());
+        model.addAttribute("verificationOptions", Auction.AuctionVerificationStatus.values());
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedType", type);
+        model.addAttribute("selectedVerification", verification);
+
+        return "auctions/myAuctions";
+    }
 
     @Scheduled(fixedRate = 60000)
     public void finalizeAuction(){

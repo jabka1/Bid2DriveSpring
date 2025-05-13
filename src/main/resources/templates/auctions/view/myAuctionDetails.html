@@ -184,6 +184,39 @@
         .status-text.rejected {
             color: red;
         }
+        .admin-comment {
+            color: #212529;
+        }
+        .dark-theme .admin-comment {
+            color: #ffffff;
+        }
+        .dark-theme .btn-outline-warning {
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+        .dark-theme .btn-outline-warning:hover {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .dark-theme .btn-outline-danger {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+        .dark-theme .btn-outline-danger:hover {
+            background-color: #ff6b6b;
+            color: #212529;
+        }
+
+        .dark-theme .btn-outline-success {
+            color: #28a745;
+            border-color: #28a745;
+        }
+        .dark-theme .btn-outline-success:hover {
+            background-color: #28a745;
+            color: #fff;
+        }
+
     </style>
 </head>
 <body>
@@ -288,14 +321,10 @@
 
         <p class="property" th:if="${auction.verificationComment != null and !auction.verificationComment.isEmpty()}">
             <strong>Administrator Comment:</strong>
-            <span th:text="${auction.verificationComment}" class="text-muted"></span>
-        </p>
-
-        <p class="property" th:if="${auction.verificationComment == null or auction.verificationComment.isEmpty()}">
-            <strong>Moderator's Comment:</strong>
-            <span>No comment provided.</span>
+            <span class="admin-comment" th:text="${auction.verificationComment}"></span>
         </p>
     </div>
+
 
 
     <div class="section">
@@ -314,6 +343,14 @@
                         th:disabled="${!canEditAll}"
                         th:attr="aria-disabled=${!canEditAll}">
                     Delete Auction
+                </button>
+            </form>
+
+            <form th:if="${auction.status.name() == 'WAITING_FOR_SHIPMENT' and auction.newOwner != null}"
+                  th:action="@{/auctions/{id}/handOver(id=${auction.id})}" method="post"
+                  onsubmit="return confirm('Confirm that the car has been handed over to the delivery service.')">
+                <button type="submit" class="btn btn-outline-success">
+                    Handed Over to Delivery
                 </button>
             </form>
         </div>
