@@ -799,6 +799,23 @@ public class AuctionController {
         return "redirect:/auctions/myView/" + id;
     }
 
+    @PostMapping("/{id}/markReceived")
+    public String markAuctionAsReceived(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        Auction auction = auctionRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found"));
+
+        if (auction.getStatus() != Auction.AuctionStatus.HANDED_OVER_TO_DELIVERY) {
+            redirectAttributes.addFlashAttribute("error", "You can only mark as received if the car was handed over.");
+            return "redirect:/auctions/myWonAuctions";
+        }
+
+        auction.setStatus(Auction.AuctionStatus.RECEIVED);
+        auctionRepository.save(auction);
+
+        redirectAttributes.addFlashAttribute("success", "Auction marked as received successfully.");
+        return "redirect:/auctions/myWonAuctions";
+    }
+
 
     @GetMapping("/myAuctions")
     public String viewMyAuctions(@RequestParam(required = false) Auction.AuctionStatus status,
@@ -838,6 +855,55 @@ public class AuctionController {
 
         return "auctions/myAuctions";
     }
+
+    @GetMapping("/myWonAuctions")
+    public String getWonAuctions(
+            @RequestParam(required = false) Auction.AuctionStatus status,
+            @RequestParam(required = false) Auction.AuctionType type,
+            Model model) {
+
+        User currentUser = userService.getCurrentUser();
+
+        List<Auction> wonAuctions = auctionRepository.findAllByNewOwnerId(currentUser.getId());
+
+        if (!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if (!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if (currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+
+        if (status != null) {
+            wonAuctions = wonAuctions.stream()
+                    .filter(a -> a.getStatus() == status)
+                    .toList();
+        }
+
+        if (type != null) {
+            wonAuctions = wonAuctions.stream()
+                    .filter(a -> a.getAuctionType() == type)
+                    .toList();
+        }
+
+        model.addAttribute("auctions", wonAuctions);
+        model.addAttribute("statusOptions", List.of(
+                Auction.AuctionStatus.WAITING_FOR_SHIPMENT,
+                Auction.AuctionStatus.HANDED_OVER_TO_DELIVERY,
+                Auction.AuctionStatus.RECEIVED
+        ));
+        model.addAttribute("typeOptions", Auction.AuctionType.values());
+        model.addAttribute("selectedStatus", status);
+        model.addAttribute("selectedType", type);
+
+        return "auctions/wonAuctions";
+    }
+
 
     @Scheduled(fixedRate = 60000)
     public void finalizeAuction(){

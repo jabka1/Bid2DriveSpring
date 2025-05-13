@@ -144,10 +144,10 @@
 </nav>
 
 <div class="container py-5">
-    <h2 class="mb-4">My Auctions</h2>
+    <h2 class="mb-4">My Won Cars</h2>
 
     <form method="get" class="row g-3 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label>Status</label>
             <select name="status" class="form-select">
                 <option value="">All</option>
@@ -159,7 +159,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label>Type</label>
             <select name="type" class="form-select">
                 <option value="">All</option>
@@ -171,19 +171,7 @@
             </select>
         </div>
 
-        <div class="col-md-3">
-            <label>Verification</label>
-            <select name="verification" class="form-select">
-                <option value="">All</option>
-                <option th:each="v : ${verificationOptions}"
-                        th:value="${v}"
-                        th:text="${#strings.capitalize(#strings.replace(v.name(), '_', ' ').toLowerCase())}"
-                        th:selected="${v == selectedVerification}">
-                </option>
-            </select>
-        </div>
-
-        <div class="col-md-3 d-flex align-items-end">
+        <div class="col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100">Filter</button>
         </div>
     </form>
@@ -192,37 +180,97 @@
     <div th:if="${auctions.isEmpty()}" class="alert alert-warning">No auctions found.</div>
 
     <div class="list-group">
-        <div th:each="auction : ${auctions}" class="list-group-item">
-            <div class="auction-card">
-                <img th:if="${auction.carImagesUrls != null and !auction.carImagesUrls.isEmpty()}"
-                     th:src="${auction.carImagesUrls[0]}" alt="Car Image" class="auction-image"/>
-                <div class="auction-info">
-                    <h5 th:text="${auction.title}"></h5>
-                    <p>
-                        <strong>Car:</strong> <span th:text="${auction.carMake + ' ' + auction.carModel}"></span> |
-                        <strong>Year:</strong> <span th:text="${auction.year}"></span><br/>
-                        <strong>Price:</strong> <span th:text="${auction.startingPrice}"></span> USD
-                        <br/>
-                        <strong>Status:</strong>
-                        <span th:text="${#strings.capitalize(#strings.replace(auction.status.name(), '_', ' ').toLowerCase())}"></span> |
-                        <strong>Type:</strong>
-                        <span th:text="${#strings.capitalize(#strings.replace(auction.auctionType.name(), '_', ' ').toLowerCase())}"></span> |
-                        <strong>Verification:</strong>
-                        <span th:text="${#strings.capitalize(#strings.replace(auction.verificationStatus.name(), '_', ' ').toLowerCase())}"></span>
-                        <br/>
-                        <span th:if="${auction.newOwner != null}">
-                        <strong>New Owner:</strong>
-                        <a th:href="@{/users/profile/{id}(id=${auction.newOwner.id})}"
-                           th:text="${auction.newOwner.firstName + ' ' + auction.newOwner.lastName}"></a>
-                    </span>
-                    </p>
-                    <a th:href="@{/auctions/myView/{id}(id=${auction.id})}" class="btn btn-sm btn-outline-secondary">View</a>
+        <div th:each="auction : ${auctions}" class="list-group-item mb-4">
+            <h4 th:text="${auction.title}"></h4>
+
+            <p><strong>Description:</strong> <span th:text="${auction.description}"></span></p>
+
+            <div class="d-flex flex-wrap mb-3 gap-2">
+                <img th:each="img : ${auction.carImagesUrls}" th:src="${img}"
+                     class="rounded" style="width: 100px; height: 70px; object-fit: cover;" onclick="openModal(this)" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Make/Model:</strong> <span th:text="${auction.carMake + ' ' + auction.carModel + ' ' + auction.carGeneration + ', ' + auction.year}"></span></p>
+                    <p><strong>VIN:</strong> <span th:text="${auction.vin}"></span></p>
+                    <p><strong>Color:</strong> <span th:text="${auction.carColor}"></span></p>
+                    <p><strong>Engine Marking:</strong> <span th:text="${auction.engineMarking}"></span></p>
+                    <p><strong>Mileage:</strong> <span th:text="${auction.mileage} + ' km'"></span></p>
+                    <p><strong>Drive:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.driveType.name(), '_', ' ').toLowerCase())}"></span></p>
+                    <p><strong>Transmission:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.transmission.name(), '_', ' ').toLowerCase())}"></span></p>
+                    <p><strong>Technical Condition:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.technicalCondition.name(), '_', ' ').toLowerCase())}"></span></p>
+                    <p><strong>Body Condition:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.bodyCondition.name(), '_', ' ').toLowerCase())}"></span></p>
+                    <p><strong>Interior:</strong> <span th:text="${auction.interiorMaterial + ', ' + auction.interiorColor}"></span></p>
+                    <p><strong>Doors:</strong> <span th:text="${auction.numberOfDoors}"></span></p>
+                    <p><strong>Accident:</strong> <span th:text="${auction.hasBeenInAccident ? 'Yes' : 'No'}"></span></p>
                 </div>
+                <div class="col-md-6">
+                    <p><strong>Fuel Type:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.fuelType.name(), '_', ' ').toLowerCase())}"></span></p>
+                    <p th:if="${auction.fuelType.name() != 'ELECTRIC'}">
+                        <strong>Engine Size:</strong> <span th:text="${auction.engineSize} + ' L'"></span>
+                    </p>
+                    <p><strong>Horsepower:</strong> <span th:text="${auction.horsepower} + ' hp'"></span></p>
+                    <p><strong>Air Conditioning:</strong> <span th:text="${auction.hasAirConditioning ? 'Yes' : 'No'}"></span></p>
+                    <p><strong>Navigation:</strong> <span th:text="${auction.hasNavigationSystem ? 'Yes' : 'No'}"></span></p>
+                    <p><strong>Multimedia:</strong> <span th:text="${auction.hasMultimediaSystem ? 'Yes' : 'No'}"></span></p>
+                    <p th:if="${auction.fuelType.name() != 'ELECTRIC' and auction.cityFuelConsumption != null}">
+                        <strong>Fuel (City):</strong> <span th:text="${auction.cityFuelConsumption} + ' L/100km'"></span>
+                    </p>
+                    <p th:if="${auction.fuelType.name() != 'ELECTRIC' and auction.highwayFuelConsumption != null}">
+                        <strong>Fuel (Highway):</strong> <span th:text="${auction.highwayFuelConsumption} + ' L/100km'"></span>
+                    </p>
+                    <p th:if="${auction.fuelType.name() != 'ELECTRIC' and auction.combinedFuelConsumption != null}">
+                        <strong>Fuel (Combined):</strong> <span th:text="${auction.combinedFuelConsumption} + ' L/100km'"></span>
+                    </p>
+                    <p th:if="${auction.fuelType.name() != 'ELECTRIC' and auction.euroStandard != null}">
+                        <strong>EURO Standard:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.euroStandard.name(), '_', ' ').toLowerCase())}"></span>
+                    </p>
+                    <p th:if="${auction.fuelType.name() != 'ELECTRIC' and auction.epaStandard != null}">
+                        <strong>EPA Standard:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.epaStandard.name(), '_', ' ').toLowerCase())}"></span>
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="mt-3 ">
+                <p><strong>Seller:</strong>
+                    <a th:href="@{/users/profile/{id}(id=${auction.seller.id})}"
+                       th:text="${auction.seller.firstName + ' ' + auction.seller.lastName}"></a>
+                </p>
+                <p><strong>Location:</strong> <span th:text="${auction.country + ', ' + auction.region + ', ' + auction.cityOrVillage}"></span></p>
+                <p><strong>Status:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.status.name(), '_', ' ').toLowerCase())}"></span></p>
+                <p><strong>Type:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.auctionType.name(), '_', ' ').toLowerCase())}"></span></p>
+                <p><strong>Final Price:</strong>
+                    <span th:if="${auction.bids != null and !auction.bids.isEmpty()}"
+                          th:text="${auction.getFinalPrice() + ' USD'}">
+                </span>
+                </p>
+            </div>
+
+            <form th:if="${auction.status.name() == 'HANDED_OVER_TO_DELIVERY'}"
+                  th:action="@{/auctions/{id}/markReceived(id=${auction.id})}" method="post">
+                <button class="btn btn-success btn-sm mt-2" type="submit">Mark as Received</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Verification Photo">
             </div>
         </div>
     </div>
-
 </div>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         function getCookie(name) {
@@ -238,6 +286,11 @@
             if (logo) logo.src = '/logo_dark.png';
         }
     });
+
+    function openModal(imgElement) {
+        document.getElementById("modalImage").src = imgElement.src;
+        new bootstrap.Modal(document.getElementById('photoModal')).show();
+    }
 </script>
 
 </body>

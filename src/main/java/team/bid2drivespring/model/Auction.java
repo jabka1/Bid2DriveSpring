@@ -254,4 +254,8 @@ public class Auction {
         APPROVED,
         REJECTED
     }
+
+    public int getFinalPrice(){
+        return bids.getLast().getProposedPrice();
+    }
 }
