@@ -2,7 +2,6 @@ package team.bid2drivespring.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,8 +11,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import team.bid2drivespring.model.Auction;
+import team.bid2drivespring.model.Review;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.repository.AuctionRepository;
+import team.bid2drivespring.repository.ReviewRepository;
 import team.bid2drivespring.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,6 +48,9 @@ public class AuthController {
 
     @Autowired
     private AuctionRepository auctionRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @GetMapping("/register")
     public String showRegisterPage(Model model) {
@@ -138,9 +142,17 @@ public class AuthController {
             emailService.sendAccountReactivatedEmail(user.getEmail(), user.getFirstName(), user.getLastName());
         }
 
+        List<Review> userReviews = reviewRepository.findByTargetAndType(user, Review.ReviewType.USER);
+        double averageRating = userReviews.isEmpty() ? 0.0 : userReviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+
+
         model.addAttribute("user", user);
+        model.addAttribute("reviews", userReviews);
+        model.addAttribute("averageRating", averageRating);
+
         return "profileSettings";
     }
+
 
     @GetMapping("/2fa")
     public String show2faPage() {

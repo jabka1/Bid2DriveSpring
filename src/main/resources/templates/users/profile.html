@@ -72,6 +72,54 @@
         .dark-theme .navbar-nav .nav-link {
             color: #ffffff;
         }
+
+        .review-block {
+            padding: 10px 0;
+        }
+
+        .dark-theme ::placeholder {
+            color: #b0b0b0;
+            opacity: 1;
+        }
+
+        .dark-theme :-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme ::-ms-input-placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .review-block {
+            border-color: #666;
+        }
+
+        .dark-theme .form-control {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+        .dark-theme .form-control:focus,
+        .dark-theme select:focus,
+        .dark-theme textarea:focus {
+            background-color: #444;
+            border-color: #bb86fc;
+            outline: none;
+            box-shadow: none;
+        }
+        .dark-theme .form-select {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+
+        .dark-theme .form-select:focus {
+            background-color: #444;
+            color: #fff;
+            border-color: #bb86fc;
+            box-shadow: none;
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -124,9 +172,63 @@
                     <p><strong>Date of Birth:</strong> <span th:text="${user.dateOfBirth.toString()}"></span></p>
                 </div>
             </div>
+
+            <div class="profile-card mt-4">
+                <h4 class="mb-3">Leave a Review</h4>
+
+                <form th:action="@{'/review/profile/' + ${user.id}}" method="post">
+                    <div class="mb-3 text-start">
+                        <label for="comment" class="form-label">Comment</label>
+                        <textarea name="comment"
+                                  id="comment"
+                                  class="form-control"
+                                  rows="4"
+                                  maxlength="2000"
+                                  placeholder="Write your review..."
+                                  required></textarea>
+                    </div>
+
+                    <div class="mb-3 text-start">
+                        <label for="rating" class="form-label">Rating</label>
+                        <select name="rating" id="rating" class="form-select" required>
+                            <option value="" disabled selected>Select rating</option>
+                            <option value="5">5 — Excellent</option>
+                            <option value="4">4 — Good</option>
+                            <option value="3">3 — Average</option>
+                            <option value="2">2 — Poor</option>
+                            <option value="1">1 — Terrible</option>
+                        </select>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-success">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="profile-card mt-4">
+                <h4 class="mb-3">User Reviews</h4>
+
+                <div th:if="${!reviews.isEmpty()}" class="mb-3">
+                    <h5>Average Rating: <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)}"></span> / 5</h5>
+                </div>
+
+                <div th:if="${reviews.isEmpty()}">
+                    <p>This user hasn’t received any reviews yet.</p>
+                </div>
+
+                <div th:each="review : ${reviews}" class="mb-3 border-bottom pb-2 review-block">
+                    <p><strong th:text="${review.author.username}">Author</strong>
+                        — <span th:text="${review.rating}">5</span>/5</p>
+                    <p th:text="${review.comment}">Comment</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<br>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
