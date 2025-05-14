@@ -257,6 +257,20 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
+    public void saveAuctionForUser(User user, Auction auction) {
+        boolean alreadySaved = user.getSavedAuctions().stream()
+                .anyMatch(a -> a.getId().equals(auction.getId()));
+        if (!alreadySaved) {
+            user.getSavedAuctions().add(auction);
+            userRepository.save(user);
+        }
+    }
+
+    public void removeSavedAuction(User user, Auction auction) {
+        user.getSavedAuctions().remove(auction);
+        userRepository.save(user);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userOpt = userRepository.findByUsername(username);

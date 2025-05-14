@@ -1,6 +1,7 @@
 package team.bid2drivespring.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -454,6 +455,11 @@ public class AuctionController {
                 ? 0.0
                 : reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
 
+
+        boolean isSaved = currentUser.getSavedAuctions().stream()
+                .anyMatch(saved -> saved.getId().equals(auction.getId()));
+
+        model.addAttribute("isSaved", isSaved);
         model.addAttribute("reviews", reviews);
         model.addAttribute("averageRating", averageRating);
 
@@ -959,6 +965,52 @@ public class AuctionController {
 
         return "auctions/myBids";
     }
+
+    @GetMapping("/saved")
+    public String viewSavedAuctions(Model model) {
+        User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
+            return "error";
+        }
+        if (!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if (currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+
+        Set<Auction> savedAuctions = currentUser.getSavedAuctions();
+        model.addAttribute("savedAuctions", savedAuctions);
+
+        return "auctions/savedAuctions";
+    }
+
+
+    @PostMapping("/save/{auctionId}")
+    public String saveAuction(@PathVariable Long auctionId) {
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found"));
+        User currentUser = userService.getCurrentUser();
+        userService.saveAuctionForUser(currentUser, auction);
+        return "redirect:/auctions/view/" + auctionId;
+    }
+
+    @PostMapping("/unsave/{auctionId}")
+    public String unsaveAuction(@PathVariable Long auctionId,
+                                HttpServletRequest request) {
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found"));
+        User currentUser = userService.getCurrentUser();
+        userService.removeSavedAuction(currentUser, auction);
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/");
+    }
+
 
     @Scheduled(fixedRate = 60000)
     public void finalizeAuction(){

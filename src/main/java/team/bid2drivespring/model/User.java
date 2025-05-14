@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -93,6 +95,15 @@ public class User implements UserDetails {
 
     @Column(nullable = true)
     private String profilePhotoUrl;
+
+    @ManyToMany
+    @JoinTable(
+            name = "saved_auctions",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "auction_id")
+    )
+    private Set<Auction> savedAuctions = new HashSet<>();
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

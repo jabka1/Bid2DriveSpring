@@ -127,21 +127,30 @@
 
         <div class="d-flex align-items-center ms-auto gap-2">
             <div class="dropdown">
+                <button class="btn dropdown-toggle header-link" type="button" id="auctionsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Auctions
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="auctionsDropdown">
+                    <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
+                    <li><a class="dropdown-item" href="/auctions/myAuctions">My Auctions</a></li>
+                    <li><a class="dropdown-item" href="/auctions/myWonAuctions">My Won Auctions</a></li>
+                    <li><a class="dropdown-item" href="/auctions/myBids">My Bids</a></li>
+                    <li><a class="dropdown-item" href="/auctions/saved">My Saved</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
                 <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
                     Account
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
                     <li><a class="dropdown-item" href="/profileSettings">Profile</a></li>
-                    <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
-                    <li><a class="dropdown-item" href="/auctions/myAuctions">My Auction</a></li>
-                    <li><a class="dropdown-item" href="/auctions/myWonAuctions">My Won Cars</a></li>
-                    <li><a class="dropdown-item" href="/auctions/myBids">My Bids</a></li>
                 </ul>
             </div>
             <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
         </div>
     </div>
 </nav>
+
 
 <div class="container py-5">
     <h2 class="mb-4">My Won Cars</h2>
