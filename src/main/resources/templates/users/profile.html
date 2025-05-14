@@ -120,6 +120,19 @@
             box-shadow: none;
             outline: none;
         }
+        .dark-theme select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill='%23e0e0e0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -210,9 +223,13 @@
             <div class="profile-card mt-4">
                 <h4 class="mb-3">User Reviews</h4>
 
+                <hr>
+
                 <div th:if="${!reviews.isEmpty()}" class="mb-3">
                     <h5>Average Rating: <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)}"></span> / 5</h5>
                 </div>
+
+                <hr>
 
                 <div th:if="${reviews.isEmpty()}">
                     <p>This user hasn’t received any reviews yet.</p>

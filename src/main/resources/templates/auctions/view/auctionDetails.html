@@ -122,15 +122,6 @@
             color: #fff;
         }
 
-        .dark-theme .form-control:focus,
-        .dark-theme select:focus,
-        .dark-theme textarea:focus {
-            background-color: #444;
-            border-color: #bb86fc;
-            outline: none;
-            box-shadow: none;
-        }
-
         .dark-theme .navbar-nav .nav-link:hover,
         .dark-theme .navbar-nav .nav-link:focus {
             color: #66b2ff;
@@ -165,6 +156,40 @@
 
         .dark-theme .dropdown-menu .dropdown-item:hover {
             background-color: #555;
+        }
+        .dark-theme .form-control:focus,
+        .dark-theme select:focus,
+        .dark-theme textarea:focus {
+            background-color: #444;
+            border-color: #bb86fc;
+            outline: none;
+            box-shadow: none;
+        }
+        .dark-theme .form-select {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+
+        .dark-theme .form-select:focus {
+            background-color: #444;
+            color: #fff;
+            border-color: #bb86fc;
+            box-shadow: none;
+            outline: none;
+        }
+        .dark-theme select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill='%23e0e0e0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1rem;
         }
     </style>
 </head>
@@ -358,6 +383,59 @@
         <p class="property"><strong>Body:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.bodyCondition.name(), '_', ' ').toLowerCase())}"></span></p>
         <p class="property"><strong>Accident:</strong> <span th:text="${auction.hasBeenInAccident ? 'Yes' : 'No'}"></span></p>
     </div>
+
+    <div class="section">
+        <h5>Leave a Review for This Auction</h5>
+
+        <form th:action="@{'/review/auction/' + ${auction.id}}" method="post">
+            <div class="mb-3">
+                <label for="comment" class="form-label">Comment</label>
+                <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="2000" required
+                          placeholder="Write your review here..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="rating" class="form-label">Rating</label>
+                <select id="rating" name="rating" class="form-select" required>
+                    <option value="" disabled selected>Select rating</option>
+                    <option value="5">5 — Excellent</option>
+                    <option value="4">4 — Good</option>
+                    <option value="3">3 — Average</option>
+                    <option value="2">2 — Poor</option>
+                    <option value="1">1 — Terrible</option>
+                </select>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success">Submit Review</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="section">
+        <h5>Auction Reviews</h5>
+
+        <div th:if="${!reviews.isEmpty()}" class="mb-3">
+            <p><strong>Average Rating:</strong> <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)}"></span> / 5</p>
+        </div>
+
+        <hr>
+
+        <div th:if="${reviews.isEmpty()}">
+            <p>This auction hasn't received any reviews yet.</p>
+        </div>
+
+        <div th:if="${!reviews.isEmpty()}">
+            <div th:each="review : ${reviews}" class="mb-3 border-bottom pb-2">
+                <p>
+                    <strong th:text="${review.author.username}">Author</strong>
+                    — <span th:text="${review.rating}">5</span>/5
+                </p>
+                <p th:text="${review.comment}">Comment</p>
+            </div>
+        </div>
+    </div>
+
 
 </div>
 

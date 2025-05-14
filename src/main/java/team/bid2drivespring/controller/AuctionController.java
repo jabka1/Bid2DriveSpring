@@ -18,8 +18,10 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.Auction.*;
+import team.bid2drivespring.model.Review;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.repository.AuctionRepository;
+import team.bid2drivespring.repository.ReviewRepository;
 import team.bid2drivespring.repository.UserRepository;
 import team.bid2drivespring.service.AuctionService;
 import team.bid2drivespring.service.UserService;
@@ -50,6 +52,9 @@ public class AuctionController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -444,6 +449,13 @@ public class AuctionController {
 
         model.addAttribute("auction", auction);
 
+        List<Review> reviews = reviewRepository.findByAuctionAndType(auction, Review.ReviewType.AUCTION);
+        double averageRating = reviews.isEmpty()
+                ? 0.0
+                : reviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+
+        model.addAttribute("reviews", reviews);
+        model.addAttribute("averageRating", averageRating);
 
         if (auction.getAuctionType().name().equals("STANDARD") || auction.getAuctionType().name().equals("LIVE_BID")) {
             Timestamp start = (Timestamp) auction.getStartTime();
@@ -466,8 +478,10 @@ public class AuctionController {
             model.addAttribute("isLiveBidBeforeStart", isLiveBidBeforeStart);
             model.addAttribute("isLiveBidEnded", isLiveBidEnded);
         }
+
         return "auctions/view/auctionDetails";
     }
+
 
 
     @GetMapping("/myView/{id}")
@@ -477,15 +491,15 @@ public class AuctionController {
 
         User currentUser = userService.getCurrentUser();
 
-        if(!currentUser.isVerified()) {
+        if (!currentUser.isVerified()) {
             model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
             return "error";
         }
-        if(!currentUser.isActivated()) {
+        if (!currentUser.isActivated()) {
             model.addAttribute("message", "Check your email and activate your account.");
             return "error";
         }
-        if(currentUser.isBlocked()) {
+        if (currentUser.isBlocked()) {
             model.addAttribute("message", "Your account was blocked.");
             return "error";
         }
@@ -502,11 +516,20 @@ public class AuctionController {
         boolean canEditAll = !hasBids || isEditableStatus;
         boolean canEditDescription = auction.getNewOwner() == null;
 
+        List<Review> auctionReviews = reviewRepository.findByAuctionAndType(auction, Review.ReviewType.AUCTION);
+        double averageRating = auctionReviews.isEmpty()
+                ? 0.0
+                : auctionReviews.stream().mapToInt(Review::getRating).average().orElse(0.0);
+
         model.addAttribute("canEditAll", canEditAll);
         model.addAttribute("canEditDescription", canEditDescription);
         model.addAttribute("auction", auction);
+        model.addAttribute("reviews", auctionReviews);
+        model.addAttribute("averageRating", averageRating);
+
         return "auctions/view/myAuctionDetails";
     }
+
 
     @PostMapping("/{id}/bid")
     public String placeBid(@PathVariable Long id,

@@ -276,10 +276,14 @@
 <div class="container">
     <h3>Received Reviews</h3>
 
+    <hr>
+
     <h5>
         Average Rating:
         <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)}"></span> / 5
     </h5>
+
+    <hr>
 
     <div th:if="${reviews.isEmpty()}">
         <p>You haven’t received any reviews yet.</p>

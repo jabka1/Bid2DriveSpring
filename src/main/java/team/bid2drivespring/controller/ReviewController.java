@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.Review;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.repository.AuctionRepository;
@@ -75,4 +76,55 @@ public class ReviewController {
         return "redirect:/users/profile/" + targetUserId;
     }
 
+    @PostMapping("/auction/{id}")
+    public String addAuctionReview(@PathVariable("id") Long auctionId,
+                                   @RequestParam("comment") String comment,
+                                   @RequestParam("rating") int rating,
+                                   Model model) {
+
+        User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.isVerified()) {
+            model.addAttribute("message", "Check your profile settings and verify your account to leave reviews.");
+            return "error";
+        }
+        if (!currentUser.isActivated()) {
+            model.addAttribute("message", "Check your email and activate your account.");
+            return "error";
+        }
+        if (currentUser.isBlocked()) {
+            model.addAttribute("message", "Your account was blocked.");
+            return "error";
+        }
+
+        if (comment == null || comment.trim().isEmpty() || rating < 1 || rating > 5) {
+            model.addAttribute("error", "Invalid comment or rating.");
+            return "error";
+        }
+
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auction not found"));
+
+        boolean alreadyExists = reviewRepository
+                .findByAuctionAndType(auction, Review.ReviewType.AUCTION)
+                .stream()
+                .anyMatch(r -> r.getAuthor().getId().equals(currentUser.getId()));
+
+        if (alreadyExists) {
+            model.addAttribute("error", "You have already reviewed this auction.");
+            return "error";
+        }
+
+        Review review = new Review();
+        review.setAuthor(currentUser);
+        review.setAuction(auction);
+        review.setTarget(null);
+        review.setComment(comment.trim());
+        review.setRating(rating);
+        review.setType(Review.ReviewType.AUCTION);
+
+        reviewRepository.save(review);
+
+        return "redirect:/auctions/view/" + auctionId;
+    }
 }
