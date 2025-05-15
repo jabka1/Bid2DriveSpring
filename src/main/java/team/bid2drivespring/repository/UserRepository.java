@@ -2,6 +2,7 @@ package team.bid2drivespring.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,6 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
     Page<User> findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus status, Pageable pageable);
     boolean existsByPassportNumberAndCountryAndIdNot(String passportNumber, String country, Long id);
-
+    List<User> findAllBySavedAuctionsContains(Auction auction);
 }
 

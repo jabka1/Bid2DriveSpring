@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
+import team.bid2drivespring.repository.ReportRepository;
+import team.bid2drivespring.repository.ReviewRepository;
 import team.bid2drivespring.repository.UserRepository;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +33,15 @@ public class AuctionService {
     private final AmazonS3 s3Client;
     private final AuctionRepository auctionRepository;
     private final UserRepository userRepository;
+    private final ReportRepository reportRepository;
+    private final ReviewRepository reviewRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     private static final String AUCTION_PHOTO_FOLDER = "auction_photo/";
+
+
 
     private List<String> uploadFilesToS3(MultipartFile[] files) throws IOException {
         List<String> uploadedUrls = new ArrayList<>();
@@ -57,11 +64,21 @@ public class AuctionService {
         return uploadedUrls;
     }
 
-    public void deleteAuctionWithImages(Auction auction) {
+    public void deleteAuction(Auction auction) {
         for (String imageUrl : auction.getCarImagesUrls()) {
             String key = extractS3Key(imageUrl);
             s3Client.deleteObject(bucketName, key);
         }
+        reviewRepository.deleteAllByAuction(auction);
+        if (reportRepository.existsByReportedAuction(auction)) {
+            reportRepository.deleteAllByReportedAuction(auction);
+        }
+
+        List<User> usersWithSavedAuction = userRepository.findAllBySavedAuctionsContains(auction);
+        for (User user : usersWithSavedAuction) {
+            user.getSavedAuctions().remove(auction);
+        }
+        userRepository.saveAll(usersWithSavedAuction);
 
         auctionRepository.delete(auction);
     }
@@ -228,13 +245,13 @@ public class AuctionService {
                         auction.setNewOwner(user);
                         auction.setStatus(Auction.AuctionStatus.WAITING_FOR_SHIPMENT);
                         auctionRepository.save(auction);
+
+                        reportRepository.deleteAllByReportedAuction(auction);
                     });
                 });
             }
         }
     }
-
-
 
     @Transactional
     public void uploadImgsAndSaveAuction(Auction auction, MultipartFile[] carImages) throws IOException {

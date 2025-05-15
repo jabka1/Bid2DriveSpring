@@ -92,12 +92,21 @@
 
         <div class="d-flex align-items-center ms-auto gap-2">
             <div class="dropdown">
-                <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                <button class="btn dropdown-toggle header-link" type="button" id="verifyDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
                     Verification
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="verifyDropdown">
                     <li><a class="dropdown-item" href="/administrator/users/pendingVerification">Users Verification</a></li>
                     <li><a class="dropdown-item" href="/administrator/cars/pendingVerification">Auctions Verification</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle header-link" type="button" id="reportsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Reports
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reportsDropdown">
+                    <li><a class="dropdown-item" href="/administrator/reports/users">Users Verification</a></li>
+                    <li><a class="dropdown-item" href="/administrator/reports/auctions">Auctions Verification</a></li>
                 </ul>
             </div>
             <a href="/logout" class="btn btn-danger btn-sm">Logout</a>

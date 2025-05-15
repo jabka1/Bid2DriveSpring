@@ -22,6 +22,7 @@ import team.bid2drivespring.model.Auction.*;
 import team.bid2drivespring.model.Review;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.repository.AuctionRepository;
+import team.bid2drivespring.repository.ReportRepository;
 import team.bid2drivespring.repository.ReviewRepository;
 import team.bid2drivespring.repository.UserRepository;
 import team.bid2drivespring.service.AuctionService;
@@ -56,6 +57,9 @@ public class AuctionController {
 
     @Autowired
     private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReportRepository reportRepository;
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -613,6 +617,8 @@ public class AuctionController {
         auction.setStatus(Auction.AuctionStatus.WAITING_FOR_SHIPMENT);
         auctionService.saveAuction(auction);
 
+        reportRepository.deleteAllByReportedAuction(auction);
+
         redirectAttributes.addFlashAttribute("success", "Car has been successfully assigned to the buyer.");
         return "redirect:/auctions/myView/" + auctionId;
     }
@@ -800,7 +806,7 @@ public class AuctionController {
         if (!isOwner) {
             redirectAttributes.addFlashAttribute("error", "You are not authorized to delete this auction.");
         } else if (noBids || isDeletableStatus) {
-            auctionService.deleteAuctionWithImages(auction);
+            auctionService.deleteAuction(auction);
             redirectAttributes.addFlashAttribute("success", "Auction deleted successfully.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Auction cannot be deleted after receiving bids.");
@@ -857,10 +863,6 @@ public class AuctionController {
             model.addAttribute("message", "Check your email and activate your account.");
             return "error";
         }
-        if (currentUser.isBlocked()) {
-            model.addAttribute("message", "Your account was blocked.");
-            return "error";
-        }
 
         List<Auction> allAuctions = auctionRepository.findAllBySellerId(currentUser.getId());
 
@@ -897,10 +899,6 @@ public class AuctionController {
         }
         if (!currentUser.isActivated()) {
             model.addAttribute("message", "Check your email and activate your account.");
-            return "error";
-        }
-        if (currentUser.isBlocked()) {
-            model.addAttribute("message", "Your account was blocked.");
             return "error";
         }
 

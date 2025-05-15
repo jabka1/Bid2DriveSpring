@@ -2,11 +2,13 @@ package team.bid2drivespring.controller;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import team.bid2drivespring.model.ChatMessage;
 import team.bid2drivespring.model.User;
 import team.bid2drivespring.repository.ChatMessageRepository;
@@ -56,6 +58,10 @@ public class ChatMessageController {
             return "error";
         }
 
+        if (otherUser.getRole() == User.Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot start this chat");
+        }
+
         List<ChatMessage> originalMessages = chatMessageRepository.findChatBetweenUsers(currentUser, otherUser);
 
         originalMessages.stream()
@@ -87,30 +93,6 @@ public class ChatMessageController {
 
         return "chat/chatView";
     }
-
-    /*@GetMapping
-    public String chatList(Model model) {
-        User currentUser = userService.getCurrentUser();
-
-        if (!currentUser.isVerified()) {
-            model.addAttribute("message", "Check your profile settings and verify your account to create lots for auction.");
-            return "error";
-        }
-        if (!currentUser.isActivated()) {
-            model.addAttribute("message", "Check your email and activate your account.");
-            return "error";
-        }
-        if (currentUser.isBlocked()) {
-            model.addAttribute("message", "Your account was blocked.");
-            return "error";
-        }
-
-        List<Long> partnerIds = chatMessageRepository.findChatPartnerIds(currentUser);
-        List<User> chatPartners = userRepository.findAllById(partnerIds);
-
-        model.addAttribute("chatPartners", chatPartners);
-        return "chat/chatList";
-    }*/
 
     @GetMapping
     public String chatList(Model model) {

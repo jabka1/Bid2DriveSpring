@@ -64,183 +64,35 @@
             margin-bottom: 8px;
         }
 
-        .dark-theme {
-            background-color: #343a40;
-            color: #ffffff;
-        }
-
-        .dark-theme .navbar {
-            background-color: #444444;
-        }
-
-        .dark-theme .section {
-            background-color: #454d55;
-            color: #ffffff;
-        }
-
-        .dark-theme .main-image,
-        .dark-theme .thumbnail-image {
-            background-color: #333;
-        }
-
-        .dark-theme .modal-content {
-            background-color: #444;
-            color: #fff;
-        }
-
-        .dark-theme .form-control {
-            background-color: #333;
-            color: #e0e0e0;
-            border: 1px solid #666;
-        }
-
-        .dark-theme .btn-success {
-            background-color: #28a745;
-            border-color: #218838;
-        }
-
-        .dark-theme .btn-outline-primary {
-            color: #e0e0e0;
-            border-color: #6c757d;
-        }
-
-        .dark-theme .btn-outline-primary:hover {
-            background-color: #6c757d;
-            border-color: #6c757d;
-        }
-
-        .dark-theme .list-group-item {
-            background-color: #3a3f44;
-            color: #fff;
-            border-color: #555;
-        }
-
-        .dark-theme .alert-success,
-        .dark-theme .alert-danger {
-            background-color: #444;
-            border-color: #555;
-            color: #fff;
-        }
-
-        .dark-theme .navbar-nav .nav-link:hover,
-        .dark-theme .navbar-nav .nav-link:focus {
-            color: #66b2ff;
-            text-decoration: none;
-        }
-
-        .dark-theme .navbar-nav .nav-link {
-            color: #ffffff;
-        }
-
-        .dark-theme ::placeholder {
-            color: #b0b0b0;
-            opacity: 1;
-        }
-
-        .dark-theme :-ms-input-placeholder {
-            color: #b0b0b0;
-        }
-
-        .dark-theme ::-ms-input-placeholder {
-            color: #b0b0b0;
-        }
-
-        .dark-theme .dropdown-menu {
-            background-color: #444 !important;
-            color: #fff;
-        }
-
-        .dark-theme .dropdown-menu .dropdown-item {
-            color: #fff;
-        }
-
-        .dark-theme .dropdown-menu .dropdown-item:hover {
-            background-color: #555;
-        }
-        .dark-theme .form-control:focus,
-        .dark-theme select:focus,
-        .dark-theme textarea:focus {
-            background-color: #444;
-            border-color: #bb86fc;
-            outline: none;
-            box-shadow: none;
-        }
-        .dark-theme .form-select {
-            background-color: #333;
-            color: #e0e0e0;
-            border: 1px solid #666;
-        }
-
-        .dark-theme .form-select:focus {
-            background-color: #444;
-            color: #fff;
-            border-color: #bb86fc;
-            box-shadow: none;
-            outline: none;
-        }
-        .dark-theme select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-color: #333;
-            color: #e0e0e0;
-            border: 1px solid #555;
-            padding-right: 2.5rem;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill='%23e0e0e0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.7rem center;
-            background-size: 1rem;
-        }
-
-        .dark-theme .btn-primary {
-            background-color: #007bff;
-            border-color: #0056b3;
-            color: #fff;
-        }
-
-        .dark-theme .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #004080;
-        }
-
-
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e0e0e0; padding: 0 20px; height: 60px;">
     <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
         <div class="d-flex align-items-center h-100">
-            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="/">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#" style="display: flex;">
                 <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
             </a>
-            <ul class="navbar-nav flex-row gap-3 ms-3">
-                <li class="nav-item"><a class="nav-link" href="/auctions/standard">Standard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auctions/livebid">LiveBid</a></li>
-                <li class="nav-item"><a class="nav-link" href="/auctions/usedcarsale">Used Cars</a></li>
-            </ul>
         </div>
 
         <div class="d-flex align-items-center ms-auto gap-2">
             <div class="dropdown">
-                <button class="btn dropdown-toggle header-link" type="button" id="auctionsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
-                    Auctions
+                <button class="btn dropdown-toggle header-link" type="button" id="verifyDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Verification
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="auctionsDropdown">
-                    <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
-                    <li><a class="dropdown-item" href="/auctions/myAuctions">My Auctions</a></li>
-                    <li><a class="dropdown-item" href="/auctions/myWonAuctions">My Won Auctions</a></li>
-                    <li><a class="dropdown-item" href="/auctions/myBids">My Bids</a></li>
-                    <li><a class="dropdown-item" href="/auctions/saved">My Saved</a></li>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="verifyDropdown">
+                    <li><a class="dropdown-item" href="/administrator/users/pendingVerification">Users Verification</a></li>
+                    <li><a class="dropdown-item" href="/administrator/cars/pendingVerification">Auctions Verification</a></li>
                 </ul>
             </div>
             <div class="dropdown">
-                <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
-                    Account
+                <button class="btn dropdown-toggle header-link" type="button" id="reportsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Reports
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                    <li><a class="dropdown-item" href="/profileSettings">Profile</a></li>
-                    <li><a class="dropdown-item" href="/chat">Chats</a></li>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reportsDropdown">
+                    <li><a class="dropdown-item" href="/administrator/reports/users">Users Verification</a></li>
+                    <li><a class="dropdown-item" href="/administrator/reports/auctions">Auctions Verification</a></li>
                 </ul>
             </div>
             <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
@@ -266,8 +118,7 @@
         <p class="property"><strong>Location:</strong> <span th:text="${auction.country + ', ' + auction.region + ', ' + auction.cityOrVillage}"></span></p>
         <p class="property">
             <strong>Seller:</strong>
-            <a th:href="@{/users/profile/{id}(id=${auction.seller.id})}"
-               th:text="${auction.seller.firstName + ' ' + auction.seller.lastName}"></a>
+            <a th:text="${auction.seller.firstName + ' ' + auction.seller.lastName}"></a>
         </p>
         <p class="property"><strong>Auction Type:</strong>
             <span th:text="${#strings.capitalize(#strings.toLowerCase(auction.auctionType.name().replace('_', ' ')))}"></span>
@@ -292,25 +143,42 @@
     </div>
 
     <div class="section">
-        <h5>Actions</h5>
-        <div class="d-flex gap-2 flex-wrap">
-            <form th:if="${isSaved}" th:action="@{/auctions/unsave/{id}(id=${auction.id})}" method="post">
-                <button type="submit" class="btn btn-outline-danger">Unsave Auction</button>
-            </form>
+        <h5>Report Details</h5>
 
-            <form th:unless="${isSaved}" th:action="@{/auctions/save/{id}(id=${auction.id})}" method="post">
-                <button type="submit" class="btn btn-outline-success">Save Auction</button>
-            </form>
+        <p><strong>Submitted by:</strong>
+            <span th:text="${report.reporter.firstName + ' ' + report.reporter.lastName}"></span>
+            (<span th:text="'@' + ${report.reporter.username}"></span>)
+        </p>
 
-            <a th:href="@{'/chat/' + ${auction.seller.id}}" class="btn btn-outline-primary">
-                ✉️ Message Seller
-            </a>
+        <p><strong>Description:</strong></p>
+        <p th:text="${report.description}"></p>
 
-            <a th:href="@{'/report/auction/' + ${auction.id}}" class="btn btn-outline-warning">
-                🚩 Report Auction
-            </a>
+        <div th:if="${report.imageUrl != null}">
+            <img th:src="${report.imageUrl}" alt="Attached Evidence"
+                 style="max-width: 100%; max-height: 400px; border-radius: 8px; margin-top: 10px;" onclick="openModal(this)"/>
         </div>
     </div>
+
+    <div class="section">
+        <h5>Admin Decision</h5>
+        <form th:action="@{'/administrator/reports/auctions/' + ${report.id} + '/action'}" method="post">
+            <div class="mb-3">
+                <label for="adminResponse" class="form-label">Response to Reporter</label>
+                <textarea name="adminResponse"
+                          id="adminResponse"
+                          class="form-control"
+                          rows="4"
+                          maxlength="2000"
+                          required></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" name="action" value="WARNING" class="btn btn-warning w-100">⚠️ Warning</button>
+                <button type="submit" name="action" value="BLOCK" class="btn btn-danger w-100">⛔ Block Auction</button>
+                <button type="submit" name="action" value="REJECT" class="btn btn-secondary w-100">❌ Reject Report</button>
+            </div>
+        </form>
+    </div>
+
 
     <div class="section">
         <h5>
@@ -329,37 +197,6 @@
             </ul>
 
             <div th:if="${auction.bids.isEmpty()}" class="text-muted mb-3">No bids yet.</div>
-
-            <div th:if="${auction.auctionType.name() == 'USED_CAR_SALE'}">
-                <form th:action="@{/auctions/{id}/bid(id=${auction.id})}" method="post" class="d-flex gap-2">
-                    <input type="number" name="proposedPrice" class="form-control" placeholder="Enter your offer" min="1" required>
-                    <button type="submit" class="btn btn-success">Submit Offer</button>
-                </form>
-            </div>
-
-            <div th:if="${auction.auctionType.name() == 'STANDARD'}">
-                <div th:if="${isStandardActive}">
-                    <form th:action="@{/auctions/{id}/bid(id=${auction.id})}" method="post" class="d-flex gap-2">
-                        <input type="number" name="proposedPrice" class="form-control" placeholder="Enter your bid" min="1" required>
-                        <button type="submit" class="btn btn-success">Place Bid</button>
-                    </form>
-                </div>
-                <div th:unless="${isStandardActive}" class="text-muted">This auction has ended.</div>
-            </div>
-
-            <div th:if="${auction.auctionType.name() == 'LIVE_BID'}">
-                <div th:if="${isLiveBidActive}">
-                    <form th:action="@{/auctions/{id}/bid(id=${auction.id})}" method="post" class="d-flex gap-2">
-                        <input type="number" name="proposedPrice" class="form-control" placeholder="Enter your bid" min="1" required>
-                        <button type="submit" class="btn btn-success">Place Bid</button>
-                    </form>
-                </div>
-                <div th:if="${isLiveBidBeforeStart}" class="text-muted">Auction has not started yet.</div>
-                <div th:if="${isLiveBidEnded}" class="text-muted">This LiveBid auction has ended.</div>
-            </div>
-
-            <div th:if="${success}" class="alert alert-success mt-2" th:text="${success}"></div>
-            <div th:if="${error}" class="alert alert-danger mt-2" th:text="${error}"></div>
         </div>
     </div>
 
@@ -421,41 +258,7 @@
     </div>
 
     <div class="section">
-        <h5>Leave a Review for This Auction</h5>
-
-        <form th:action="@{'/review/auction/' + ${auction.id}}" method="post">
-            <div class="mb-3">
-                <label for="comment" class="form-label">Comment</label>
-                <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="2000" required
-                          placeholder="Write your review here..."></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label for="rating" class="form-label">Rating</label>
-                <select id="rating" name="rating" class="form-select" required>
-                    <option value="" disabled selected>Select rating</option>
-                    <option value="5">5 — Excellent</option>
-                    <option value="4">4 — Good</option>
-                    <option value="3">3 — Average</option>
-                    <option value="2">2 — Poor</option>
-                    <option value="1">1 — Terrible</option>
-                </select>
-            </div>
-
-            <div class="text-end">
-                <button type="submit" class="btn btn-success">Submit Review</button>
-            </div>
-        </form>
-    </div>
-
-    <div class="section">
         <h5>Auction Reviews</h5>
-
-        <div th:if="${!reviews.isEmpty()}" class="mb-3">
-            <p><strong>Average Rating:</strong> <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)}"></span> / 5</p>
-        </div>
-
-        <hr>
 
         <div th:if="${reviews.isEmpty()}">
             <p>This auction hasn't received any reviews yet.</p>
@@ -515,17 +318,6 @@
     document.addEventListener("DOMContentLoaded", function () {
         convertUtcTextToLocal("start-time-utc", "start-time-local");
         convertUtcTextToLocal("end-time-utc", "end-time-local");
-
-        const getCookie = name => {
-            const value = "; " + document.cookie;
-            const parts = value.split("; " + name + "=");
-            if (parts.length === 2) return parts.pop().split(";").shift();
-        };
-
-        if (getCookie('theme') === 'dark') {
-            document.body.classList.add('dark-theme');
-            $('#logo').attr('src', '/logo_dark.png');
-        }
     });
 </script>
 

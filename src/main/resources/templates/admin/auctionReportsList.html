@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Auction Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .img-thumbnail {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .narrow-table-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .table td, .table th {
+            border: none;
+            vertical-align: middle;
+        }
+        .table tbody tr:not(:last-child) {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table thead {
+            background-color: #e9ecef;
+        }
+        @media (max-width: 768px) {
+            .table thead {
+                display: none;
+            }
+            .table, .table tbody, .table tr, .table td {
+                display: block;
+                width: 100%;
+            }
+            .table td {
+                padding: 0.75rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+            .table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                display: block;
+                color: #495057;
+                margin-bottom: 0.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e0e0e0; padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="#" style="display: flex;">
+                <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <div class="dropdown">
+                <button class="btn dropdown-toggle header-link" type="button" id="verifyDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Verification
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="verifyDropdown">
+                    <li><a class="dropdown-item" href="/administrator/users/pendingVerification">Users Verification</a></li>
+                    <li><a class="dropdown-item" href="/administrator/cars/pendingVerification">Auctions Verification</a></li>
+                </ul>
+            </div>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle header-link" type="button" id="reportsDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="color: inherit; text-decoration: none; background: none; border: none;">
+                    Reports
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="reportsDropdown">
+                    <li><a class="dropdown-item" href="/administrator/reports/users">Users Verification</a></li>
+                    <li><a class="dropdown-item" href="/administrator/reports/auctions">Auctions Verification</a></li>
+                </ul>
+            </div>
+            <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<br>
+
+<h2 class="text-center mb-4">Auction Reports</h2>
+
+<div class="table-responsive narrow-table-container">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Reported Auction</th>
+            <th>Reporter</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="report : ${reports}">
+            <td data-label="Reported Auction">
+                <div class="d-flex align-items-center">
+                    <img th:src="${report.reportedAuction.carImagesUrls[0]}"
+                         class="img-thumbnail me-2" alt="Auction Image">
+                    <div>
+                        <strong th:text="${report.reportedAuction.carMake + ' ' + report.reportedAuction.carModel}"></strong><br>
+                    </div>
+                </div>
+            </td>
+            <td data-label="Reporter">
+                <div class="d-flex align-items-center">
+                    <img th:src="${report.reporter.profilePhotoUrl != null ? report.reporter.profilePhotoUrl : '/DefaultProfilePic.jpg'}"
+                         class="img-thumbnail me-2" alt="Reporter">
+                    <div>
+                        <strong th:text="${report.reporter.firstName + ' ' + report.reporter.lastName}"></strong><br>
+                        <small th:text="'@' + ${report.reporter.username}"></small>
+                    </div>
+                </div>
+            </td>
+            <td data-label="Actions">
+                <a th:href="@{/administrator/reports/auctions/{id}(id=${report.id})}" class="btn btn-sm btn-outline-primary">View</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-center mt-4">
+    <ul class="pagination">
+        <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+            <a class="page-link" th:href="@{/administrator/reports/auctions(page=${currentPage - 1})}">Previous</a>
+        </li>
+        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}" th:classappend="${pageNum == currentPage ? 'active' : ''}">
+            <a class="page-link" th:href="@{/administrator/reports/auctions(page=${pageNum})}" th:text="${pageNum + 1}"></a>
+        </li>
+        <li class="page-item" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+            <a class="page-link" th:href="@{/administrator/reports/auctions(page=${currentPage + 1})}">Next</a>
+        </li>
+    </ul>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

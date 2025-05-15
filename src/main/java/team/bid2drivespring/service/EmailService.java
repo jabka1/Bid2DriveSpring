@@ -316,6 +316,73 @@ public class EmailService {
         }
     }
 
+    public void sendAdminDecisionEmail(String toEmail, String subject, String carModel, String carMake, String vin, String adminResponse) {
+        String htmlContent = """
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+                <h2 style="color: #007bff; text-align: center;">%s</h2>
+                <p>This message concerns one of your vehicle listings:</p>
+                <p><strong>Make:</strong> %s</p>
+                <p><strong>Model:</strong> %s</p>
+                <p><strong>VIN:</strong> %s</p>
+                <hr>
+                <p><strong>Administrator's Message:</strong></p>
+                <p>%s</p>
+                <p style="margin-top: 30px; font-size: 12px; color: #777;">Please check your account for further updates.</p>
+            </div>
+        </body>
+        </html>
+    """.formatted(subject, carMake, carModel, vin, adminResponse);
 
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            System.out.println("Admin decision email sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending admin decision email: " + e.getMessage());
+        }
+    }
+
+    public void sendAdminDecisionEmailForUser(String toEmail, String subject, String firstName, String lastName, String adminResponse) {
+        String htmlContent = """
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+                <h2 style="color: #007bff; text-align: center;">%s</h2>
+                <p>Hello <strong>%s %s</strong>,</p>
+                <p>We would like to inform you regarding the recent report involving your account on Bid2Drive.</p>
+                <hr>
+                <p><strong>Administrator's Message:</strong></p>
+                <p>%s</p>
+                <p>If you have any questions, you may contact our support team.</p>
+                <p style="margin-top: 30px; font-size: 12px; color: #777;">This message was sent in response to a formal complaint.</p>
+            </div>
+        </body>
+        </html>
+    """.formatted(subject, firstName, lastName, adminResponse);
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(mimeMessage);
+            System.out.println("Admin decision email to user sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending user decision email: " + e.getMessage());
+        }
+    }
 
 }

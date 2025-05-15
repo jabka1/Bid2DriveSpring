@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import team.bid2drivespring.model.Auction;
+import team.bid2drivespring.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +41,6 @@ public interface AuctionRepository extends JpaRepository<Auction, Long>, JpaSpec
     List<Auction> findAllBySellerId(Long id);
     List<Auction> findAllByNewOwnerId(Long id);
     List<Auction> findByStatus(Auction.AuctionStatus auctionStatus);
+
+    List<Auction> findBySellerAndStatusIn(User user, List<Auction.AuctionStatus> active);
 }

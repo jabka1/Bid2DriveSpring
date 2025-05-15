@@ -312,6 +312,9 @@
                 </a>
             </h5>
             <small class="text-muted" th:text="'@' + ${otherUser.username}"></small>
+            <div th:if="${otherUser.blocked}" class="mt-2">
+                <span class="badge bg-danger">Blocked User</span>
+            </div>
         </div>
     </div>
 

@@ -214,13 +214,22 @@
                     <p><strong>Country:</strong> <span th:text="${user.country}"></span></p>
                     <p><strong>Region:</strong> <span th:text="${user.city}"></span></p>
                     <p><strong>Date of Birth:</strong> <span th:text="${user.dateOfBirth.toString()}"></span></p>
-                    <div class="mt-4 text-center">
+
+                    <div th:if="${user.blocked}" class="alert alert-danger mt-3">
+                        🚫 This user is currently <strong>blocked</strong>.
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-center gap-2 flex-wrap">
                         <a th:href="@{'/chat/' + ${user.id}}" class="btn btn-primary btn-sm">
                             ✉️ Send a Message
+                        </a>
+                        <a th:href="@{'/report/user/' + ${user.id}}" class="btn btn-outline-danger btn-sm">
+                            🚩 Report User
                         </a>
                     </div>
                 </div>
             </div>
+
 
             <div class="profile-card mt-4">
                 <h4 class="mb-3">Leave a Review</h4>

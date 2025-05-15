@@ -6,7 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import team.bid2drivespring.model.Auction;
 import team.bid2drivespring.model.User;
+import team.bid2drivespring.model.Report;
 import team.bid2drivespring.repository.AuctionRepository;
+import team.bid2drivespring.repository.ReportRepository;
 import team.bid2drivespring.repository.UserRepository;
 
 
@@ -22,6 +24,9 @@ public class AdminService {
     @Autowired
     private AuctionRepository auctionRepository;
 
+    @Autowired
+    private ReportRepository reportRepository;
+
     public Page<User> getUsersPendingVerification(Pageable pageable) {
         return userRepository.findByVerificationPhotoUrlIsNotNullAndVerificationStatus(User.VerificationStatus.PENDING, pageable);
     }
@@ -33,6 +38,15 @@ public class AdminService {
     public Auction getAuctionById(Long id) {
         return auctionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Auction not found with id = " + id));
+    }
+
+    public Page<Report> getPendingReportsByType(Report.ReportType type, Pageable pageable) {
+        return reportRepository.findByTypeAndStatus(type, Report.ReportStatus.PENDING, pageable);
+    }
+
+    public Report getReportById(Long id) {
+        return reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Report not found with id: " + id));
     }
 
     public void approveVerification(Long userId) {

@@ -13,4 +13,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByTargetAndType(User target, Review.ReviewType type);
     List<Review> findByAuctionAndType(Auction auction, Review.ReviewType type);
+    void deleteAllByAuction(Auction auction);
 }
