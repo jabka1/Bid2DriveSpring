@@ -1,55 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Your Chats</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
         body {
             background-color: #f8f9fa;
             transition: background-color 0.3s, color 0.3s;
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        .btn-custom {
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-        }
-        .btn-custom:hover {
-            background-color: #0056b3;
-        }
-        .error-image {
-            width: 200px;
-            height: 200px;
-            object-fit: contain;
-            margin-top: 20px;
-        }
-        .dark-theme {
-            background-color: #343a40;
-            color: #ffffff;
-        }
-        .dark-theme .container {
-            background-color: #454d55;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        .dark-theme .btn-custom {
-            background-color: #007bff;
-            color: #fff;
-        }
-        .dark-theme .btn-custom:hover {
-            background-color: #0056b3;
         }
         .navbar {
             background-color: #e0e0e0;
@@ -60,11 +23,40 @@
         .navbar-right {
             margin-left: auto;
         }
-
-        .dark-theme .navbar {
-            background-color: #444444;
+        .chat-preview {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-
+        .chat-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .chat-info {
+            flex-grow: 1;
+        }
+        .chat-username {
+            font-weight: bold;
+            margin: 0;
+        }
+        .chat-name {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .chat-last-message {
+            font-size: 0.9em;
+            color: #333;
+        }
+        .unread-indicator {
+            color: #28a745;
+            font-size: 1.2em;
+        }
+        .dark-theme {
+            background-color: #343a40;
+            color: #ffffff;
+        }
         .dark-theme .dropdown-menu {
             background-color: #444 !important;
             color: #fff;
@@ -77,6 +69,9 @@
         .dark-theme .dropdown-menu .dropdown-item:hover {
             background-color: #555;
         }
+        .dark-theme .navbar {
+            background-color: #444444;
+        }
 
         .dark-theme .navbar-nav .nav-link:hover,
         .dark-theme .navbar-nav .nav-link:focus {
@@ -87,10 +82,35 @@
         .dark-theme .navbar-nav .nav-link {
             color: #ffffff;
         }
+
+        .dark-theme .container {
+            color: #ffffff;
+        }
+
+        .dark-theme .list-group-item {
+            background-color: #333;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+
+        .dark-theme .list-group-item:hover {
+            background-color: #3a3a3a;
+        }
+
+        .dark-theme .text-muted {
+            color: #ccc !important;
+        }
+
+        .dark-theme .badge.bg-primary {
+            background-color: #007bff !important;
+        }
+
+        .dark-theme .fw-bold {
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
-
 <nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
     <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
         <div class="d-flex align-items-center h-100">
@@ -130,42 +150,52 @@
         </div>
     </div>
 </nav>
-<br>
-<div class="container">
-    <h1 class="text-center mb-4">Something Went Wrong</h1>
-    <br>
-        <div class="text-center">
-            <img id="errorImg" src="/error.svg" alt="Error Image" class="error-image" style="width: 300px; height: 300px;">
-        </div>
-    <br>
 
-    <div class="mt-3 text-center">
-        <strong>Problem description:</strong>
+<div class="container mt-4" style="max-width: 700px;">
+    <h3 class="mb-4">Your Chats</h3>
+    <div class="list-group">
+        <a th:each="chat : ${chatPreviews}"
+           th:href="@{'/chat/' + ${chat.user.id}}"
+           class="list-group-item list-group-item-action d-flex align-items-center justify-content-between"
+           style="padding: 15px 18px;">
 
-        <p th:if="${message != null and !#strings.isEmpty(message)}" th:text="${message}"></p>
+            <div class="d-flex align-items-center">
+                <img th:src="${chat.user.profilePhotoUrl != null ? chat.user.profilePhotoUrl : 'DefaultProfilePic.jpg'}"
+                     alt="Avatar"
+                     class="rounded-circle me-3"
+                     style="width: 50px; height: 50px; object-fit: cover; border: 1px solid #ccc;">
 
-        <p th:if="${(message == null or #strings.isEmpty(message)) and (error != null and !#strings.isEmpty(error))}" th:text="${error}"></p>
+                <div>
+                    <div class="fw-bold" style="font-size: 1rem;" th:text="${chat.user.username}"></div>
+                    <div class="text-muted" style="font-size: 0.9rem;" th:text="${chat.user.firstName + ' ' + chat.user.lastName}"></div>
+                    <div th:if="${chat.lastMessage != null}" class="mt-1" style="font-size: 0.9rem;">
+                        <span th:if="${chat.lastMessage.image}" class="text-secondary">📷 Image</span>
+                        <span th:if="${!chat.lastMessage.image}" th:text="${chat.lastMessage.content}" class="text-secondary"></span>
+                    </div>
+                </div>
+            </div>
 
-        <p th:if="${(message == null or #strings.isEmpty(message)) and (error == null or #strings.isEmpty(error))}">
-            Not working at the moment 😟
-        </p>
+            <div th:if="${chat.unread}" class="ms-3">
+                <span class="badge rounded-pill bg-primary">New</span>
+            </div>
+        </a>
     </div>
 </div>
 
 <script>
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-
-    window.onload = () => {
-        if (getCookie('theme') === 'dark') {
+    $(document).ready(function () {
+        const isDark = getCookie('theme') === 'dark';
+        if (isDark) {
             document.body.classList.add('dark-theme');
             $('#logo').attr('src', '/logo_dark.png');
-            $('#errorImg').attr('src', '/error_dark.svg');
         }
-    };
+    });
+
+    function getCookie(name) {
+        let value = "; " + document.cookie;
+        let parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+    }
 </script>
 </body>
 </html>

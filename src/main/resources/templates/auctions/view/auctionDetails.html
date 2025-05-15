@@ -191,6 +191,19 @@
             background-position: right 0.7rem center;
             background-size: 1rem;
         }
+
+        .dark-theme .btn-primary {
+            background-color: #007bff;
+            border-color: #0056b3;
+            color: #fff;
+        }
+
+        .dark-theme .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004080;
+        }
+
+
     </style>
 </head>
 <body>
@@ -227,6 +240,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
                     <li><a class="dropdown-item" href="/profileSettings">Profile</a></li>
+                    <li><a class="dropdown-item" href="/chat">Chats</a></li>
                 </ul>
             </div>
             <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
@@ -279,15 +293,22 @@
 
     <div class="section">
         <h5>Actions</h5>
+        <div class="d-flex gap-2 flex-wrap">
+            <form th:if="${isSaved}" th:action="@{/auctions/unsave/{id}(id=${auction.id})}" method="post">
+                <button type="submit" class="btn btn-outline-danger">Unsave Auction</button>
+            </form>
 
-        <form th:if="${isSaved}" th:action="@{/auctions/unsave/{id}(id=${auction.id})}" method="post">
-            <button type="submit" class="btn btn-outline-danger">Unsave Auction</button>
-        </form>
+            <form th:unless="${isSaved}" th:action="@{/auctions/save/{id}(id=${auction.id})}" method="post">
+                <button type="submit" class="btn btn-outline-success">Save Auction</button>
+            </form>
 
-        <form th:unless="${isSaved}" th:action="@{/auctions/save/{id}(id=${auction.id})}" method="post">
-            <button type="submit" class="btn btn-outline-success">Save Auction</button>
-        </form>
+            <a th:href="@{'/chat/' + ${auction.seller.id}}" class="btn btn-outline-primary">
+                ✉️ Message Seller
+            </a>
+        </div>
     </div>
+
+
 
 
     <div class="section">

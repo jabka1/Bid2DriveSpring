@@ -37,5 +37,7 @@ cloud.aws.s3.bucket=YOUR_BUCKET_NAME
 
 admin.secret.key=YOUR_SECRET_KEY
 
-spring.servlet.multipart.max-file-size=100MB
-spring.servlet.multipart.max-request-size=100MB
+spring.servlet.multipart.max-file-size=150MB
+spring.servlet.multipart.max-request-size=150MB
+
+encryption.key=YOUR_KEY

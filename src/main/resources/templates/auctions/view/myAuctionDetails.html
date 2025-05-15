@@ -278,6 +278,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
                     <li><a class="dropdown-item" href="/profileSettings">Profile</a></li>
+                    <li><a class="dropdown-item" href="/chat">Chats</a></li>
                 </ul>
             </div>
             <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
@@ -363,7 +364,7 @@
                class="btn btn-outline-warning"
                th:classappend="${!canEditDescription} ? ' disabled' : ''"
                th:attr="aria-disabled=${!canEditDescription}">
-                Edit Auction
+                ⚙️ Edit Auction
             </a>
 
             <form th:action="@{/auctions/delete/{id}(id=${auction.id})}" method="post"
@@ -371,7 +372,7 @@
                 <button type="submit" class="btn btn-outline-danger"
                         th:disabled="${!canEditAll}"
                         th:attr="aria-disabled=${!canEditAll}">
-                    Delete Auction
+                    🗑️ Delete Auction
                 </button>
             </form>
 
@@ -379,9 +380,15 @@
                   th:action="@{/auctions/{id}/handOver(id=${auction.id})}" method="post"
                   onsubmit="return confirm('Confirm that the car has been handed over to the delivery service.')">
                 <button type="submit" class="btn btn-outline-success">
-                    Handed Over to Delivery
+                    🚢 Handed Over to Delivery
                 </button>
             </form>
+
+            <a th:if="${auction.newOwner != null}"
+               th:href="@{'/chat/' + ${auction.newOwner.id}}"
+               class="btn btn-outline-primary">
+                ✉️ Message Buyer
+            </a>
         </div>
     </div>
 

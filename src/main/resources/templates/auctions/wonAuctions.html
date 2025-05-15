@@ -105,6 +105,12 @@
             background-color: #444;
         }
 
+        .dark-theme .navbar-nav .nav-link:hover,
+        .dark-theme .navbar-nav .nav-link:focus {
+            color: #66b2ff;
+            text-decoration: none;
+        }
+
         .dark-theme .navbar-nav .nav-link {
             color: #ffffff;
         }
@@ -144,6 +150,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
                     <li><a class="dropdown-item" href="/profileSettings">Profile</a></li>
+                    <li><a class="dropdown-item" href="/chat">Chats</a></li>
                 </ul>
             </div>
             <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
@@ -247,7 +254,13 @@
                 <p><strong>Seller:</strong>
                     <a th:href="@{/users/profile/{id}(id=${auction.seller.id})}"
                        th:text="${auction.seller.firstName + ' ' + auction.seller.lastName}"></a>
+                    <a th:href="@{'/chat/' + ${auction.seller.id}}"
+                       class="btn btn-outline-primary btn-sm ms-2 py-0 px-2"
+                       style="font-size: 0.75rem; vertical-align: middle;">
+                        ✉️ Send a Message
+                    </a>
                 </p>
+
                 <p><strong>Location:</strong> <span th:text="${auction.country + ', ' + auction.region + ', ' + auction.cityOrVillage}"></span></p>
                 <p><strong>Status:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.status.name(), '_', ' ').toLowerCase())}"></span></p>
                 <p><strong>Type:</strong> <span th:text="${#strings.capitalize(#strings.replace(auction.auctionType.name(), '_', ' ').toLowerCase())}"></span></p>
