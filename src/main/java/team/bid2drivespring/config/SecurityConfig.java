@@ -40,7 +40,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/verifyDelivery/**","/register", "/login", "/activate",  "/createAdmin","/createAdmin/**", "/css/**", "/generateTokenForPasswordRecovery", "/passwordRecovery", "/js/**", "/logo.png", "/logo_dark.png","/DefaultProfilePic.jpg", "/usedcarsale-auctions.jpg", "/livebid-auctions.jpg", "/standard-auctions.jpg", "/car-list.json", "/auctions/standard", "/auctions/livebid", "/auctions/usedcarsale").permitAll()
+                        .requestMatchers("/","/homeDemo/**","/verifyDelivery/**","/register", "/login", "/activate",  "/createAdmin","/createAdmin/**", "/css/**", "/generateTokenForPasswordRecovery", "/passwordRecovery", "/js/**", "/logo.png", "/logo_dark.png","/DefaultProfilePic.jpg", "/usedcarsale-auctions.jpg", "/livebid-auctions.jpg", "/standard-auctions.jpg", "/car-list.json", "/auctions/standard", "/auctions/livebid", "/auctions/usedcarsale").permitAll()
                         .requestMatchers("/administrator/**").hasRole("ADMIN")
                         .requestMatchers("/**").hasRole("USER")
                         .anyRequest().authenticated()

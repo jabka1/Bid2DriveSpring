@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Bid2Drive</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .navbar {
+            background-color: #e0e0e0;
+            padding: 0 20px;
+            height: 60px;
+        }
+
+        .info-section {
+            background-color: #e9ecef;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 50px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 768px) {
+            .info-container {
+                flex-direction: row;
+                align-items: stretch;
+            }
+
+            .info-image {
+                width: 50%;
+                max-height: 100%;
+                object-fit: cover;
+            }
+
+            .info-text {
+                width: 50%;
+                min-height: 360px;
+                max-height: 400px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+
+        .dark-theme .form-control {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .form-control:focus {
+            border-color: #bb86fc;
+            background-color: #444;
+        }
+
+        .dark-theme {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+
+        .dark-theme .navbar {
+            background-color: #444444;
+        }
+
+        .dark-theme small,
+        .dark-theme small li {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .dropdown-menu {
+            background-color: #444 !important;
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item {
+            color: #fff;
+        }
+
+        .dark-theme .dropdown-menu .dropdown-item:hover {
+            background-color: #555;
+        }
+
+        .dark-theme .form-control,
+        .dark-theme select,
+        .dark-theme textarea {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+
+        .dark-theme select {
+            appearance: none;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding-right: 2.5rem;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg fill='%23e0e0e0' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1rem;
+        }
+
+        .dark-theme ::placeholder {
+            color: #b0b0b0;
+        }
+
+        .dark-theme .form-control:focus,
+        .dark-theme select:focus,
+        .dark-theme textarea:focus {
+            background-color: #444;
+            border-color: #bb86fc;
+            outline: none;
+            box-shadow: none;
+        }
+
+        .dark-theme .auction-card {
+            background-color: #454d55;
+            color: #ffffff;
+            border-color: #666;
+        }
+
+        .dark-theme .info-section {
+            background-color: #3a3f44;
+            color: #ffffff;
+        }
+
+        .dark-theme .card {
+            background-color: #454d55;
+            color: #ffffff;
+            border: 1px solid #666666;
+        }
+
+        .dark-theme .info-arrow-inline {
+            color: #e0e0e0;
+        }
+
+        .dark-theme .info-arrow-inline:hover {
+            color: #66b2ff;
+        }
+
+        .dark-theme .input-group-text {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        .dark-theme .btn-outline-secondary {
+            color: #e0e0e0;
+            border-color: #6c757d;
+            background-color: transparent;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .dark-theme .btn-outline-secondary:hover {
+            color: #ffffff;
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .dark-theme .navbar-nav .nav-link:hover,
+        .dark-theme .navbar-nav .nav-link:focus {
+            color: #66b2ff;
+        }
+
+        .dark-theme .navbar-nav .nav-link {
+            color: #ffffff;
+        }
+        .dark-theme .info-section {
+            background-color: #2c2f33;
+            color: #f1f1f1;
+        }
+
+        .dark-theme .info-section h2,
+        .dark-theme .info-section h5,
+        .dark-theme .info-section p {
+            color: #f1f1f1;
+        }
+
+        .dark-theme .info-section .info-icon {
+            color: #66b2ff;
+        }
+
+        .dark-theme .info-section .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .dark-theme .info-section .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004a9f;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="/" style="display: flex;">
+                <img id="logo" src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+
+            <ul class="navbar-nav flex-row gap-3 ms-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/standard">Standard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/livebid">LiveBid</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/auctions/usedcarsale">Used Cars</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle header-link" type="button" id="auctionDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            style="color: inherit; text-decoration: none; background: none; border: none;">
+                        Auctions
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="auctionDropdown">
+                        <li><a class="dropdown-item" href="/auctions/create">Create Auction</a></li>
+                        <li><a class="dropdown-item" href="/auctions/myAuctions">My Auction</a></li>
+                        <li><a class="dropdown-item" href="/auctions/myWonAuctions">My Won Cars</a></li>
+                        <li><a class="dropdown-item" href="/auctions/myBids">My Bids</a></li>
+                        <li><a class="dropdown-item" href="/auctions/saved">My Saved</a></li>
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle header-link" type="button" id="accountDropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            style="color: inherit; text-decoration: none; background: none; border: none;">
+                        Account
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                        <li><a class="dropdown-item" href="/profileSettings">Profile</a></li>
+                        <li><a class="dropdown-item" href="/chat">Chats</a></li>
+                    </ul>
+                </div>
+                <a href="/logout" id="logoutBtn" class="btn btn-danger btn-sm">Logout</a>
+            </div>
+
+            <div sec:authorize="isAnonymous()">
+                <a href="/login" class="btn btn-primary">Login</a>
+                <a href="/register" class="btn btn-success">Register</a>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="row align-items-center py-5">
+        <div class="col-md-6">
+            <img src="/homeDemo/1.jpg" class="img-fluid rounded" alt="Verified Cars">
+        </div>
+        <div class="col-md-6">
+            <h3>Thousands of Verified Cars</h3>
+            <p>Explore a wide range of inspected vehicles from certified sellers across different regions. Each listing is reviewed to ensure you get exactly what you expect — no surprises.</p>
+        </div>
+    </div>
+
+    <div class="row align-items-center py-5 flex-md-row-reverse">
+        <div class="col-md-6">
+            <img src="/homeDemo/2.jpg" class="img-fluid rounded" alt="Bidding Process">
+        </div>
+        <div class="col-md-6">
+            <h3>Transparent Bidding Process</h3>
+            <p>Join auctions with full visibility of competing bids. You can bid confidently knowing there are no hidden fees and no shady behavior — what you see is what you pay.</p>
+        </div>
+    </div>
+
+    <div class="row align-items-center py-5">
+        <div class="col-md-6">
+            <img src="/homeDemo/3.jpg" class="img-fluid rounded" alt="Find the Right Car">
+        </div>
+        <div class="col-md-6">
+            <h3>Find the Right Car for Your Needs</h3>
+            <p>Looking for something specific? Use filters to set the brand, model, year, mileage, fuel type and more. Whether you're here to find a car for yourself or your business — it's easy to narrow things down and focus only on what really fits your needs.</p>
+        </div>
+    </div>
+
+</div>
+
+<section class="info-section text-center">
+    <div class="container">
+        <h2 class="mb-4">How It Works</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="info-icon mb-3">🌍</div>
+                <h5>Sign Up</h5>
+                <p>Create an account in a minute. To bid, you'll need to complete a short verification.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="info-icon mb-3">🚗</div>
+                <h5>Join Auctions</h5>
+                <p>Pick a car and place your bid. We have Standard, Live Bid, and Used Cars Sale formats — for every need.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="info-icon mb-3">🔍</div>
+                <h5>Pick What Suits You</h5>
+                <p>Use filters to find the right car — by brand, year, mileage, and more.</p>
+            </div>
+        </div>
+        <a href="/register" class="btn btn-primary mt-4">Start Bidding</a>
+    </div>
+</section>
+
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Auction Types</h2>
+    <p class="text-center mb-5">We offer three types of auctions — each with its own pace, rules, and advantages. Learn which one fits you best.</p>
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <img src="/standard-auctions.jpg" class="img-fluid rounded" alt="Standard Auctions">
+        </div>
+        <div class="col-md-6">
+            <h4>Standard Auctions</h4>
+            <p>These are traditional timed auctions. Sellers list a car with a deadline, and buyers place bids until it ends. You always see the current top offer. Great for planned purchases with enough time to decide.</p>
+        </div>
+    </div>
+
+    <div class="row align-items-center flex-md-row-reverse mb-5">
+        <div class="col-md-6">
+            <img src="/livebid-auctions.jpg" class="img-fluid rounded" alt="LiveBid Auctions">
+        </div>
+        <div class="col-md-6">
+            <h4>LiveBid Auctions</h4>
+            <p>Fast-paced and time-limited. These auctions run for 10 to 60 minutes at a scheduled time. See other bids instantly, and act fast. Perfect for quick decisions and real-time competition.</p>
+        </div>
+    </div>
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <img src="/usedcarsale-auctions.jpg" class="img-fluid rounded" alt="Used Car Sale">
+        </div>
+        <div class="col-md-6">
+            <h4>Used Car Sale</h4>
+            <p>This is a fixed-price option. You can buy the car right away, or make an offer to the seller. Simple and flexible, especially if you want to avoid auction pressure.</p>
+        </div>
+    </div>
+</div>
+
+
+<br><br>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function getCookie(name) {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+
+    const isDark = getCookie('theme') === 'dark';
+    const isAuthenticated = document.querySelector('#logoutBtn') !== null;
+
+    if (isAuthenticated && isDark) {
+        document.body.classList.add('dark-theme');
+        const logo = document.getElementById('logo');
+        if (logo) {
+            logo.src = '/logo_dark.png';
+        }
+    }
+</script>
+</body>
+</html>
