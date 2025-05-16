@@ -284,7 +284,7 @@ public class AuthController {
         } catch (IOException e) {
             model.addAttribute("error", "Failed to upload passport photo.");
         }
-        return "profileSettings";
+        return "redirect:/profileSettings";
     }
 
 
@@ -298,7 +298,7 @@ public class AuthController {
         }
         User user = userService.getCurrentUser();
         model.addAttribute("user", user);
-        return "profileSettings";
+        return "redirect:/profileSettings";
     }
 
     @GetMapping("/createAdmin")

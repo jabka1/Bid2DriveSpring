@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Auction Delivery Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .section-title {
+            margin-top: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .info-row {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+        }
+        .main-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .thumbnail {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .scrollable-text {
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: #fff;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e0e0e0; padding: 0 20px; height: 60px;">
+    <div class="container-fluid d-flex justify-content-between align-items-center p-0 h-100">
+        <div class="d-flex align-items-center h-100">
+            <a class="navbar-brand d-flex align-items-center h-100 p-0 m-0" href="/" style="display: flex;">
+                <img src="/logo.png" alt="Logo" style="max-height: 80%; width: auto; margin-right: 8px; padding: 4px 0;">
+            </a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h1>Auction Delivery Verification</h1>
+
+    <div class="section-title">Auction Details</div>
+    <br>
+    <div class="info-row mb-3">
+        <span class="info-label">Title:</span><br>
+        <span th:text="${auction.title}"></span>
+    </div>
+
+    <div class="info-row mb-3">
+        <span class="info-label">Type:</span><br>
+        <span th:text="${auction.auctionType}"></span>
+    </div>
+
+    <div class="info-row mb-3">
+        <span class="info-label">Description:</span><br>
+        <div class="scrollable-text" th:text="${auction.description}"></div>
+    </div>
+
+
+    <div class="text-center my-4">
+        <h2 class="display-5">
+            Final Price:
+            <span th:text="${auction.getLastUserBid(buyer.id)?.proposedPrice + ' USD'}"></span>
+        </h2>
+    </div>
+
+    <div th:if="${auction.carImagesUrls != null and !auction.carImagesUrls.isEmpty()}">
+        <div class="section-title">Photos</div>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+                <img class="main-image" th:src="${auction.carImagesUrls[0]}" alt="Main Car Photo" onclick="openModal(this)"/>
+            </div>
+            <div class="col-md-12 d-flex flex-wrap">
+                <img th:each="img, iterStat : ${auction.carImagesUrls}" th:if="${iterStat.index > 0}" class="thumbnail" th:src="${img}" alt="Additional Photo" onclick="openModal(this)"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">Vehicle Information</div>
+    <br>
+    <div class="row info-row">
+        <div class="col-md-3"><span class="info-label">Make:</span> <span th:text="${auction.carMake}"></span></div>
+        <div class="col-md-3"><span class="info-label">Model:</span> <span th:text="${auction.carModel}"></span></div>
+        <div class="col-md-3"><span class="info-label">Generation:</span> <span th:text="${auction.carGeneration}"></span></div>
+        <div class="col-md-3"><span class="info-label">Year:</span> <span th:text="${auction.year}"></span></div>
+    </div>
+    <div class="row info-row">
+        <div class="col-md-3"><span class="info-label">VIN:</span> <span th:text="${auction.vin}"></span></div>
+        <div class="col-md-3"><span class="info-label">Color:</span> <span th:text="${auction.carColor}"></span></div>
+        <div class="col-md-3"><span class="info-label">Interior Color:</span> <span th:text="${auction.interiorColor}"></span></div>
+        <div class="col-md-3"><span class="info-label">Interior Material:</span> <span th:text="${auction.interiorMaterial}"></span></div>
+    </div>
+    <div class="row info-row">
+        <div class="col-md-3"><span class="info-label">Body Type:</span> <span th:text="${auction.bodyType}"></span></div>
+        <div class="col-md-3"><span class="info-label">Transmission:</span> <span th:text="${auction.transmission}"></span></div>
+        <div class="col-md-3"><span class="info-label">Fuel:</span> <span th:text="${auction.fuelType}"></span></div>
+        <div class="col-md-3"><span class="info-label">Drive Type:</span> <span th:text="${auction.driveType}"></span></div>
+    </div>
+    <div class="row info-row">
+        <div class="col-md-3"><span class="info-label">Horsepower:</span> <span th:text="${auction.horsepower}"></span></div>
+        <div class="col-md-3"><span class="info-label">Engine Size:</span> <span th:text="${auction.engineSize}"></span></div>
+        <div class="col-md-3"><span class="info-label">Engine Marking:</span> <span th:text="${auction.engineMarking}"></span></div>
+        <div class="col-md-3"><span class="info-label">Accident:</span> <span th:text="${auction.hasBeenInAccident ? 'Yes' : 'No'}"></span></div>
+    </div>
+    <div class="row info-row">
+        <div class="col-md-3"><span class="info-label">Doors:</span> <span th:text="${auction.numberOfDoors}"></span></div>
+        <div class="col-md-3"><span class="info-label">Air Conditioning:</span> <span th:text="${auction.hasAirConditioning ? 'Yes' : 'No'}"></span></div>
+        <div class="col-md-3"><span class="info-label">Navigation:</span> <span th:text="${auction.hasNavigationSystem ? 'Yes' : 'No'}"></span></div>
+        <div class="col-md-3"><span class="info-label">Multimedia:</span> <span th:text="${auction.hasMultimediaSystem ? 'Yes' : 'No'}"></span></div>
+    </div>
+    <div class="row info-row">
+        <div class="col-md-3"><span class="info-label">EURO Standard:</span> <span th:text="${auction.euroStandard}"></span></div>
+        <div class="col-md-3"><span class="info-label">EPA Standard:</span> <span th:text="${auction.epaStandard}"></span></div>
+        <div class="col-md-3"><span class="info-label">Technical Condition:</span> <span th:text="${auction.technicalCondition}"></span></div>
+        <div class="col-md-3"><span class="info-label">Body Condition:</span> <span th:text="${auction.bodyCondition}"></span></div>
+    </div>
+    <br>
+    <div class="row info-row">
+        <div class="col-md-4"><span class="info-label">Fuel Consumption (City):</span> <span th:text="${auction.cityFuelConsumption}"></span></div>
+        <div class="col-md-4"><span class="info-label">Fuel Consumption (Highway):</span> <span th:text="${auction.highwayFuelConsumption}"></span></div>
+        <div class="col-md-4"><span class="info-label">Fuel Consumption (Combined):</span> <span th:text="${auction.combinedFuelConsumption}"></span></div>
+    </div>
+
+    <div class="section-title">Location</div>
+    <br>
+    <div class="row info-row">
+        <div class="col-md-4"><span class="info-label">Country:</span> <span th:text="${auction.country}"></span></div>
+        <div class="col-md-4"><span class="info-label">Region:</span> <span th:text="${auction.region}"></span></div>
+        <div class="col-md-4"><span class="info-label">City or Village:</span> <span th:text="${auction.cityOrVillage}"></span></div>
+    </div>
+
+    <div class="section-title">Seller</div>
+    <br>
+    <div class="row info-row">
+        <div class="col-md-4"><span class="info-label">Username:</span> <span th:text="${seller.username}"></span></div>
+        <div class="col-md-4"><span class="info-label">Full Name:</span> <span th:text="${seller.firstName + ' ' + seller.lastName}"></span></div>
+        <div class="col-md-4"><span class="info-label">Date of Birth:</span> <span th:text="${seller.dateOfBirth}"></span></div>
+    </div>
+    <div class="row info-row">
+        <div class="col-md-4"><span class="info-label">Email:</span> <span th:text="${seller.email}"></span></div>
+        <div class="col-md-4"><span class="info-label">Location:</span> <span th:text="${seller.country + ', ' + seller.city}"></span></div>
+    </div>
+
+    <div class="section-title">Buyer</div>
+    <br>
+    <div class="row info-row">
+        <div class="col-md-4"><span class="info-label">Username:</span> <span th:text="${buyer.username}"></span></div>
+        <div class="col-md-4"><span class="info-label">Full Name:</span> <span th:text="${buyer.firstName + ' ' + buyer.lastName}"></span></div>
+        <div class="col-md-4"><span class="info-label">Date of Birth:</span> <span th:text="${buyer.dateOfBirth}"></span></div>
+    </div>
+    <div class="row info-row">
+        <div class="col-md-4"><span class="info-label">Email:</span> <span th:text="${buyer.email}"></span></div>
+        <div class="col-md-4"><span class="info-label">Location:</span> <span th:text="${buyer.country + ', ' + buyer.city}"></span></div>
+    </div>
+</div>
+<br>
+<script>
+    function openModal(imgElement) {
+        document.getElementById("modalImage").src = imgElement.src;
+        new bootstrap.Modal(document.getElementById('photoModal')).show();
+    }
+</script>
+</body>
+</html>

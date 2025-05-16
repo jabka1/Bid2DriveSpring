@@ -2,6 +2,7 @@ package team.bid2drivespring.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import team.bid2drivespring.repository.ReportRepository;
 import team.bid2drivespring.repository.ReviewRepository;
 import team.bid2drivespring.repository.UserRepository;
+import team.bid2drivespring.util.UrlSafeEncryptionUtil;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -39,8 +41,13 @@ public class AuctionService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    private static final String AUCTION_PHOTO_FOLDER = "auction_photo/";
+    @Value("${app.domain}")
+    private String appDomain;
 
+    private static final String AUCTION_PHOTO_FOLDER = "auction_photo/";
+    private final UrlSafeEncryptionUtil urlSafeEncryptionService;
+    private final PdfGenerationService pdfGenerationService;
+    private final EmailService emailService;
 
 
     private List<String> uploadFilesToS3(MultipartFile[] files) throws IOException {
@@ -209,6 +216,7 @@ public class AuctionService {
         auctionRepository.save(auction);
     }
 
+
     @Transactional
     public void assignWinnersToFinishedAuctions() {
         List<Auction> endedAuctions = auctionRepository
@@ -233,6 +241,13 @@ public class AuctionService {
                 if (bids == null || bids.isEmpty()) {
                     auction.setStatus(Auction.AuctionStatus.NOT_SOLD);
                     auctionRepository.save(auction);
+
+                    List<User> usersWithAuctionSaved = userRepository.findAllBySavedAuctionsContains(auction);
+                    for (User user : usersWithAuctionSaved) {
+                        user.getSavedAuctions().remove(auction);
+                    }
+                    userRepository.saveAll(usersWithAuctionSaved);
+
                     continue;
                 }
 
@@ -246,12 +261,29 @@ public class AuctionService {
                         auction.setStatus(Auction.AuctionStatus.WAITING_FOR_SHIPMENT);
                         auctionRepository.save(auction);
 
+                        List<User> usersWithAuctionSaved = userRepository.findAllBySavedAuctionsContains(auction);
+                        for (User u : usersWithAuctionSaved) {
+                            u.getSavedAuctions().remove(auction);
+                        }
+                        userRepository.saveAll(usersWithAuctionSaved);
+
                         reportRepository.deleteAllByReportedAuction(auction);
+
+                        String token = urlSafeEncryptionService.encodeId(auction.getId());
+                        String verifyLink = appDomain + "/verifyDelivery/" + token;
+
+                        try {
+                            byte[] pdf = pdfGenerationService.generateAuctionDeliveryPdf(auction, verifyLink);
+                            emailService.sendAuctionWinEmailWithAttachment(user.getEmail(), pdf);
+                        } catch (Exception e) {
+                            System.err.println("Error sending winner email: " + e.getMessage());
+                        }
                     });
                 });
             }
         }
     }
+
 
     @Transactional
     public void uploadImgsAndSaveAuction(Auction auction, MultipartFile[] carImages) throws IOException {

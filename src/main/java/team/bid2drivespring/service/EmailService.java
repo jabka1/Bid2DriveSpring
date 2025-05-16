@@ -1,5 +1,6 @@
 package team.bid2drivespring.service;
 
+import jakarta.mail.util.ByteArrayDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -384,5 +385,39 @@ public class EmailService {
             System.err.println("Error sending user decision email: " + e.getMessage());
         }
     }
+
+    public void sendAuctionWinEmailWithAttachment(String toEmail, byte[] pdfBytes) {
+        String subject = "Congratulations! You've Won the Auction";
+
+        String htmlContent = """
+        <html>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+            <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h1 style="color: #333; text-align: center;">Bid2Drive</h1>
+                <h2 style="color: #28a745;">You're the Winning Bidder!</h2>
+                <p>Congratulations! You have won the auction. Attached is your Auction Delivery Sheet with all necessary details.</p>
+                <p>Please review the document and prepare for the next steps in the delivery and confirmation process.</p>
+                <p style="margin-top: 30px; font-size: 12px; color: #777;">Thank you for participating in Bid2Drive auctions.</p>
+            </div>
+        </body>
+        </html>
+    """;
+
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            helper.addAttachment("AuctionDelivery.pdf", new ByteArrayDataSource(pdfBytes, "application/pdf"));
+
+            mailSender.send(mimeMessage);
+            System.out.println("Auction win email with attachment sent to: " + toEmail);
+        } catch (MessagingException e) {
+            System.err.println("Error sending auction win email: " + e.getMessage());
+        }
+    }
+
 
 }

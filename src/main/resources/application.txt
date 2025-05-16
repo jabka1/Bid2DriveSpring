@@ -41,3 +41,5 @@ spring.servlet.multipart.max-file-size=150MB
 spring.servlet.multipart.max-request-size=150MB
 
 encryption.key=YOUR_KEY
+
+app.domain=http://localhost:8080

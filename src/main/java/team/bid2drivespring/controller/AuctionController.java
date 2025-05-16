@@ -26,7 +26,10 @@ import team.bid2drivespring.repository.ReportRepository;
 import team.bid2drivespring.repository.ReviewRepository;
 import team.bid2drivespring.repository.UserRepository;
 import team.bid2drivespring.service.AuctionService;
+import team.bid2drivespring.service.EmailService;
+import team.bid2drivespring.service.PdfGenerationService;
 import team.bid2drivespring.service.UserService;
+import team.bid2drivespring.util.UrlSafeEncryptionUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -37,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/auctions")
@@ -60,6 +64,20 @@ public class AuctionController {
 
     @Autowired
     private ReportRepository reportRepository;
+
+    @Autowired
+    private UrlSafeEncryptionUtil urlSafeEncryptionService;
+
+    @Autowired
+    private PdfGenerationService pdfGenerationService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Value("${app.domain}")
+    private String appDomain;
+
+
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -613,11 +631,26 @@ public class AuctionController {
             return "error";
         }
 
+        List<User> usersWithAuctionSaved = userRepository.findAllBySavedAuctionsContains(auction);
+        for (User user : usersWithAuctionSaved) {
+            user.getSavedAuctions().remove(auction);
+        }
+        userRepository.saveAll(usersWithAuctionSaved);
+
         auction.setNewOwner(buyerOpt.get());
         auction.setStatus(Auction.AuctionStatus.WAITING_FOR_SHIPMENT);
         auctionService.saveAuction(auction);
 
         reportRepository.deleteAllByReportedAuction(auction);
+
+        try {
+            String token = urlSafeEncryptionService.encodeId(auction.getId());
+            String verifyLink = appDomain + "/verifyDelivery/" + token;
+            byte[] pdf = pdfGenerationService.generateAuctionDeliveryPdf(auction, verifyLink);
+            emailService.sendAuctionWinEmailWithAttachment(buyerOpt.get().getEmail(), pdf);
+        } catch (Exception e) {
+            System.err.println("Error sending win email: " + e.getMessage());
+        }
 
         redirectAttributes.addFlashAttribute("success", "Car has been successfully assigned to the buyer.");
         return "redirect:/auctions/myView/" + auctionId;
