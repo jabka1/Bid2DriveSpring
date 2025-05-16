@@ -317,7 +317,54 @@
 <div class="container mt-4">
     <h2 class="mb-4 text-center">Standard Auctions</h2>
 
+    <div class="container">
+        <div class="info-section">
+            <div class="info-container flex-column flex-md-row">
+                <img src="/standard-auctions.jpg" alt="Standard Auctions" class="info-image mb-3 mb-md-0">
 
+                <div class="info-text">
+                    <div class="info-nav">
+                        <button class="info-arrow-inline" onclick="changeSlide(-1)">‹</button>
+                        <h4 class="mb-0 text-center flex-grow-1">Standard Auctions</h4>
+                        <button class="info-arrow-inline" onclick="changeSlide(1)">›</button>
+                    </div>
+
+                    <div class="info-slide active">
+                        <h5 class="mb-3">What Are Standard Auctions?</h5>
+                        <p>Standard auctions are time-limited online car listings where verified sellers offer vehicles to the highest bidder. These auctions ensure fairness, competitiveness, and security for all participants.</p>
+                        <ul>
+                            <li>✅ Fixed ending time</li>
+                            <li>✅ Only verified vehicles and sellers</li>
+                            <li>✅ Transparent bidding — no hidden bids</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-slide">
+                        <h5 class="mb-3">How to Join an Auction?</h5>
+                        <p>Start by creating a free account, completing your profile, and verifying your identity. Once approved, you can place bids, track your activity, and receive real-time updates on the auctions you're interested in.</p>
+                        <ul>
+                            <li>👤 Sign up and verify</li>
+                            <li>🔍 Explore listings with filters</li>
+                            <li>💬 Ask questions, check reviews</li>
+                            <li>💸 Place your bid and monitor results</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-slide">
+                        <h5 class="mb-3">How to List Your Vehicle?</h5>
+                        <p>Want to sell your car? Create an auction in minutes. Upload photos, set a starting price, and select the duration. Our team will review your submission and help ensure it reaches the right buyers.</p>
+                        <ul>
+                            <li>📷 Upload clear car images</li>
+                            <li>📄 Fill in all key details (VIN, year, condition)</li>
+                            <li>🕒 Choose a duration and price</li>
+                            <li>✅ Submit for approval and go live!</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="d-flex justify-content-center mb-3">
         <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse"
@@ -338,54 +385,7 @@
                                     th:selected="${make == carMake}"></option>
                         </select>
                     </div>
-                    <div class="container">
-                        <div class="info-section">
-                            <div class="info-container flex-column flex-md-row">
-                                <img src="/standard-auctions.jpg" alt="Standard Auctions" class="info-image mb-3 mb-md-0">
 
-                                <div class="info-text">
-                                    <div class="info-nav">
-                                        <button class="info-arrow-inline" onclick="changeSlide(-1)">‹</button>
-                                        <h4 class="mb-0 text-center flex-grow-1">Standard Auctions</h4>
-                                        <button class="info-arrow-inline" onclick="changeSlide(1)">›</button>
-                                    </div>
-
-                                    <div class="info-slide active">
-                                        <h5 class="mb-3">What Are Standard Auctions?</h5>
-                                        <p>Standard auctions are time-limited online car listings where verified sellers offer vehicles to the highest bidder. These auctions ensure fairness, competitiveness, and security for all participants.</p>
-                                        <ul>
-                                            <li>✅ Fixed ending time</li>
-                                            <li>✅ Only verified vehicles and sellers</li>
-                                            <li>✅ Transparent bidding — no hidden bids</li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="info-slide">
-                                        <h5 class="mb-3">How to Join an Auction?</h5>
-                                        <p>Start by creating a free account, completing your profile, and verifying your identity. Once approved, you can place bids, track your activity, and receive real-time updates on the auctions you're interested in.</p>
-                                        <ul>
-                                            <li>👤 Sign up and verify</li>
-                                            <li>🔍 Explore listings with filters</li>
-                                            <li>💬 Ask questions, check reviews</li>
-                                            <li>💸 Place your bid and monitor results</li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="info-slide">
-                                        <h5 class="mb-3">How to List Your Vehicle?</h5>
-                                        <p>Want to sell your car? Create an auction in minutes. Upload photos, set a starting price, and select the duration. Our team will review your submission and help ensure it reaches the right buyers.</p>
-                                        <ul>
-                                            <li>📷 Upload clear car images</li>
-                                            <li>📄 Fill in all key details (VIN, year, condition)</li>
-                                            <li>🕒 Choose a duration and price</li>
-                                            <li>✅ Submit for approval and go live!</li>
-                                        </ul>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-md-3">
                         <label class="form-label filter-label">Car Model</label>
                         <select name="carModel" id="carModel" class="form-select">
