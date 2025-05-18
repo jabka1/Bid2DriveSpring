@@ -240,13 +240,9 @@ public class AuctionService {
 
                 if (bids == null || bids.isEmpty()) {
                     auction.setStatus(Auction.AuctionStatus.NOT_SOLD);
-                    auctionRepository.save(auction);
+                    userRepository.removeAuctionFromAllUsers(auction.getId());
 
-                    List<User> usersWithAuctionSaved = userRepository.findAllBySavedAuctionsContains(auction);
-                    for (User user : usersWithAuctionSaved) {
-                        user.getSavedAuctions().remove(auction);
-                    }
-                    userRepository.saveAll(usersWithAuctionSaved);
+                    auctionRepository.save(auction);
 
                     continue;
                 }
@@ -259,15 +255,10 @@ public class AuctionService {
                     userOpt.ifPresent(user -> {
                         auction.setNewOwner(user);
                         auction.setStatus(Auction.AuctionStatus.WAITING_FOR_SHIPMENT);
-                        auctionRepository.save(auction);
-
-                        List<User> usersWithAuctionSaved = userRepository.findAllBySavedAuctionsContains(auction);
-                        for (User u : usersWithAuctionSaved) {
-                            u.getSavedAuctions().remove(auction);
-                        }
-                        userRepository.saveAll(usersWithAuctionSaved);
+                        userRepository.removeAuctionFromAllUsers(auction.getId());
 
                         reportRepository.deleteAllByReportedAuction(auction);
+                        auctionRepository.save(auction);
 
                         String token = urlSafeEncryptionService.encodeId(auction.getId());
                         String verifyLink = appDomain + "/verifyDelivery/" + token;
@@ -283,7 +274,6 @@ public class AuctionService {
             }
         }
     }
-
 
     @Transactional
     public void uploadImgsAndSaveAuction(Auction auction, MultipartFile[] carImages) throws IOException {
