@@ -657,21 +657,11 @@ public class AuctionController {
     }
 
     private String getAuctionsByType(
-            Auction.AuctionType type,
-            String viewPath,
-            int page, int size,
-            String carMake, String carModel,
-            Integer yearFrom, Integer yearTo,
-            Integer mileageFrom, Integer mileageTo,
-            Integer horsepowerFrom, Integer horsepowerTo,
-            Integer priceFrom, Integer priceTo,
-            Double engineSizeFrom, Double engineSizeTo,
-            Auction.FuelType fuelType, Auction.TransmissionType transmission,
-            Auction.BodyType bodyType, Auction.DriveType driveType,
+            Auction.AuctionType type, String viewPath, int page, int size, String carMake, String carModel, Integer yearFrom, Integer yearTo,
+            Integer mileageFrom, Integer mileageTo, Integer horsepowerFrom, Integer horsepowerTo, Integer priceFrom, Integer priceTo, Double engineSizeFrom, Double engineSizeTo,
+            Auction.FuelType fuelType, Auction.TransmissionType transmission, Auction.BodyType bodyType, Auction.DriveType driveType,
             Auction.TechnicalCondition technicalCondition, Auction.BodyCondition bodyCondition,
-            String country, String region, Integer numberOfDoors,
-            String sortBy, String sortDir,
-            Model model
+            String country, String region, Integer numberOfDoors, String sortBy, String sortDir, Model model
     ) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -682,29 +672,11 @@ public class AuctionController {
         Optional<String> regionOpt = Optional.ofNullable(region).filter(s -> !s.isBlank());
 
         Page<Auction> auctions = auctionService.findFilteredAuctions(
-                type,
-                carMakeOpt,
-                carModelOpt,
-                Optional.ofNullable(yearFrom),
-                Optional.ofNullable(yearTo),
-                Optional.ofNullable(mileageFrom),
-                Optional.ofNullable(mileageTo),
-                Optional.ofNullable(horsepowerFrom),
-                Optional.ofNullable(horsepowerTo),
-                Optional.ofNullable(priceFrom),
-                Optional.ofNullable(priceTo),
-                Optional.ofNullable(engineSizeFrom),
-                Optional.ofNullable(engineSizeTo),
-                Optional.ofNullable(fuelType),
-                Optional.ofNullable(transmission),
-                Optional.ofNullable(bodyType),
-                Optional.ofNullable(driveType),
-                Optional.ofNullable(technicalCondition),
-                Optional.ofNullable(bodyCondition),
-                countryOpt,
-                regionOpt,
-                Optional.ofNullable(numberOfDoors),
-                pageable
+                type, carMakeOpt, carModelOpt, Optional.ofNullable(yearFrom), Optional.ofNullable(yearTo), Optional.ofNullable(mileageFrom),
+                Optional.ofNullable(mileageTo), Optional.ofNullable(horsepowerFrom), Optional.ofNullable(horsepowerTo), Optional.ofNullable(priceFrom),
+                Optional.ofNullable(priceTo), Optional.ofNullable(engineSizeFrom), Optional.ofNullable(engineSizeTo), Optional.ofNullable(fuelType),
+                Optional.ofNullable(transmission), Optional.ofNullable(bodyType), Optional.ofNullable(driveType), Optional.ofNullable(technicalCondition),
+                Optional.ofNullable(bodyCondition), countryOpt, regionOpt, Optional.ofNullable(numberOfDoors), pageable
         );
 
         model.addAttribute("auctions", auctions.getContent());
