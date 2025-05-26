@@ -8,7 +8,7 @@ Bid2Drive is a comprehensive online car auction platform supporting multiple auc
 
 The platform is currently deployed and running on **Heroku**. Access it directly:
 
-link here
+[link here](https://bid2drive-b4c7d8870697.herokuapp.com/)
 
 ## Features
 ### User Account Features
