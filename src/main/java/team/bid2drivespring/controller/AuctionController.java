@@ -1043,7 +1043,7 @@ public class AuctionController {
     }
 
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 * * * * *")
     public void finalizeAuction(){
         auctionService.assignWinnersToFinishedAuctions();
     }
